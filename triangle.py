@@ -33,6 +33,14 @@ class Triangle:
 			else:
 				return self.p3
 
+	#returns the other point that is not the z_high or z_low
+	def find_other_point(self):
+		if (not self.z_high.equals_point(self.p1) and not self.z_low.equals_point(self.p1)):
+			return self.p1
+		elif (not self.z_high.equals_point(self.p2) and not self.z_low.equals_point(self.p2)):
+			return self.p2
+		return self.p3
+
 	def print_triangle(self):
 		print self.p1.point_tos()
 		print self.p2.point_tos()
