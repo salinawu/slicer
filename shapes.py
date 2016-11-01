@@ -13,7 +13,7 @@ class Point:
         self.z = z
 
     def is_equal(self, other):
-    	return self.x == other.x
+    	return self.x == other.x and self.y == other.y and self.z == other.z
 
     def print_point(self):
         print str(self.x) + ' ' + str(self.y) + ' ' + str(self.z)
