@@ -1,5 +1,6 @@
-from point import Point
-from triangle import Triangle
+#!/usr/bin/python
+from shapes import Point
+from shapes import Triangle
 
 #
 # begin file parsing into points and eventually triangles
@@ -15,7 +16,7 @@ def parse_stl_file(filename):
 		lines = f.readlines()
 		length = len(lines)
 		i = 0
-    	while i < length:
+		while i < length:
 			line = lines[i]
 			p1 = None
 			if "vertex" in line:
@@ -39,7 +40,7 @@ def _calc_intersection(p1, p2, p3, p4, z):
 	deltx2 = p4.x - p3.x
 	delty2 = p4.y - p3.y
 	m1 = 0 if deltx1 == 0 else delty1/deltx1
-	m2 = 0 if deltx2 == 0 delty2/deltx2
+	m2 = 0 if deltx2 == 0 else delty2/deltx2
 	b1 = p1.y - m1*p1.x
 	b2 = p3.y - m2*p3.x
 	x = 0 if m1-m2 == 0 else (b2-b1)/(m1-m2)
@@ -56,8 +57,12 @@ def calc_points():
 
 	while i < len(sorted_triangles):
 		triangle = sorted_triangles[i]
-		#triangle is in the cutting plane
-		if (cur_z >= triangle.z_low.z and cur_z <= triangle.z_high.z):
+
+		#if one vertex is in the plane, ignore this triangle
+		if (triangle.z_low.z == cur_z and triangle.find_other_point().z > cur_z):
+			i = i + 1
+		#other cases of triangle in the cutting plane
+		elif (cur_z >= triangle.z_low.z and cur_z <= triangle.z_high.z):
 
 			if (cur_z == triangle.p1.z):
 
@@ -76,6 +81,7 @@ def calc_points():
 				#only p1 is in the plane
 				else:
 					points.append(_calc_intersection(triangle.z_high, triangle.z_low, triangle.p1, None, cur_z))
+
 
 				points.append(triangle.p1)
 
@@ -106,7 +112,7 @@ def calc_points():
 
 		#triangle is completely above the plane -- advance the plane
 		elif (cur_z < triangle.z_low.z):
-			cur_z = cur_z + 10 #2mm planes
+			cur_z = cur_z + 2 #2mm planes
 	
 		else:
 			i = i + 1
