@@ -40,6 +40,9 @@ class Triangle:
         self.z_high = self.highest_z()
         self.z_low = self.lowest_z()
 
+    def return_points(self):
+        return [self.p1, self.p2, self.p3]
+
     def highest_z(self):
         if self.p1.z >= self.p2.z:
             if self.p1.z >= self.p3.z:
@@ -79,7 +82,3 @@ class Triangle:
         print self.p2.point_tos()
         print self.p3.point_tos()
         print
-
-
-
-			
