@@ -85,6 +85,7 @@ class Triangle:
 
 class Line():
 
-    def __init__(self, p1, p2):
+    def __init__(self, p1, p2, z):
         self.p1 = p1
         self.p2 = p2
+        self.z = z 

@@ -65,8 +65,6 @@ def calc_points(max_z, thickness):
 			if triangle_intersects_plane?(t, plane):
 				# return the intersecting points and calculate the correponding line segments
 				points = intersection_case(triangle, plane, points)
-				lines[plane] += calc_line_segments(points)
-
 	return points
 
 def triangle_intersects_plane?(t, plane):
@@ -80,15 +78,15 @@ def intersection_case(triangle, plane, points):
 	# case 1: all points on the plane; save all points
 	if z1==z2==z3:
 		points += [i for i in triangle.return_points()]
-		return [i for i in triangle.return_points()]
+		lines[plane] += calc_line_segments([i for i in triangle.return_points()], -2)
 
 	# case 2: two points on the plane; save 2 points on the plane
 	elif triangle.z_low.z == triangle.find_other_point().z == plane:
 		points += [triangle.z_low, triangle.find_other_point()]
-		return [triangle.z_low, triangle.find_other_point()]
+		lines[plane] += calc_line_segments([triangle.z_low, triangle.find_other_point()], triangle.z_high)
 	elif triangle.z_high.z == triangle.find_other_point().z == plane:
 		points += [triangle.z_high, triangle.find_other_point()]
-		return [triangle.z_high, triangle.find_other_point()]
+		lines[plane] += calc_line_segments([triangle.z_low, triangle.find_other_point()], triangle.z_low)
 
 	# case 3: save point on the plane and where the other intersection point is
 	elif triangle.z_low.z < triangle.find_other_point().z < triangle.z_high:
@@ -96,31 +94,48 @@ def intersection_case(triangle, plane, points):
 			intersection_pt = _calc_intersection(triangle.z_low, triangle.z_high, triangle.find_other_point(), None, plane)
 			points.append(triangle.find_other_point())
 			points.append(intersection_pt)
-			return [triangle.find_other_point(), intersection_pt]
+			lines[plane] += calc_line_segments([triangle.find_other_point(), intersection_pt], -1)
 		elif triangle.find_other_point().z > plane:
 			# save 2 intersection points
 			i1 = _calc_intersection(triangle.z_low, triangle.z_high, triangle.find_other_point(), None, plane)
 			i2 = _calc_intersection(triangle.z_low, triangle.find_other_point(), triangle.find_other_point(), None, plane)
 			points.append(i1)
 			points.append(i2)
-			return [i1, i2]
+			lines[plane] += calc_line_segments([i1, i2], -1)
 		else:
 			i1 = _calc_intersection(triangle.z_low, triangle.z_high, triangle.find_other_point(), None, plane)
 			i2 = _calc_intersection(triangle.find_other_point(), triangle.z_high, triangle.find_other_point(), None, plane)
 			points.append(i1)
 			points.append(i2)
-			return [i1, i2]
+			lines[plane] += calc_line_segments([i1, i2], -1)
 
 	# case 5: don't do anything
 
-def calc_line_segments(ps):
+# calculate the line segments based on a list of 2 or 3 points as well as the corresponding z value
+def calc_line_segments(ps, z):
 	length = len(ps)
 	if length==2:
-		return [Line(ps[0], ps[1])]
+		return [Line(ps[0], ps[1], z)]
 	elif length==3:
-		return [Line(ps[0], ps[1]), Line(ps[2], ps[1]), Line(ps[2], ps[0])]
+		return [Line(ps[0], ps[1], z), Line(ps[2], ps[1], z), Line(ps[2], ps[0], z)]
 	else:
 		raise NameError('can only have 2 or 3 points')
+
+def remove_dup_lines():
+	for i in lines.keys():
+		# while there are duplicate line segments,
+		# isolate them and call remove_line_segments on them and i 
+
+# uses algo from paper to determine whether we should remove 1 or both line segments
+# should only arrive here if l1==l2
+def remove_line_segments(l1, l2, plane):
+	if (l1.z == l2.z == -2) or (l1.z > plane and l2.z > plane) or (l1.z < plane and l2.z < plane):
+		lines[plane].remove(l1)
+		lines[plane].remove(l2)
+	elif (l1.z == -2 and l2.z != -2) or (l1.z != -2 and l2.z == -2) or (l1.z > plane and l2.z < plane) or (l1.z < plane and l2.z > plane):
+		 lines[plane].remove(l1)
+	else:
+		raise NameError('should never end up in this case')
 
 parse_stl_file("cubetest.stl")
 points = calc_points()
