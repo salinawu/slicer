@@ -88,4 +88,7 @@ class Line():
     def __init__(self, p1, p2, z):
         self.p1 = p1
         self.p2 = p2
-        self.z = z 
+        self.z = z
+
+    def same_line?(self, l):
+        return self.p1==l.p1 and self.p2==l.p2

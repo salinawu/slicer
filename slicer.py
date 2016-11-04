@@ -122,9 +122,18 @@ def calc_line_segments(ps, z):
 		raise NameError('can only have 2 or 3 points')
 
 def remove_dup_lines():
-	for i in lines.keys():
-		# while there are duplicate line segments,
-		# isolate them and call remove_line_segments on them and i 
+	# plane is the z value of each plane
+	for plane in lines.keys():
+		# l is each line in the corresponding plane
+		for l in lines[plane]:
+			exclude_self = lines[plane].remove(l)
+			# find all the lines identical to the one we're currently looking at
+			same_lines = [x if l.same_line?(x) for x in exclude_self]
+			for same in same_lines:
+				# we might have already taken out the line in contention
+				if l not in lines[plane]:
+					break
+				remove_line_segments(l, same, plane)
 
 # uses algo from paper to determine whether we should remove 1 or both line segments
 # should only arrive here if l1==l2
@@ -133,7 +142,7 @@ def remove_line_segments(l1, l2, plane):
 		lines[plane].remove(l1)
 		lines[plane].remove(l2)
 	elif (l1.z == -2 and l2.z != -2) or (l1.z != -2 and l2.z == -2) or (l1.z > plane and l2.z < plane) or (l1.z < plane and l2.z > plane):
-		 lines[plane].remove(l1)
+		 lines[plane].remove(l2)
 	else:
 		raise NameError('should never end up in this case')
 
