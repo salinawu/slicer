@@ -91,4 +91,4 @@ class Line():
         self.z = z
 
     def same_line?(self, l):
-        return self.p1==l.p1 and self.p2==l.p2
+        return self.p1.is_equal(l.p1) and self.p2.is_equal(l.p2)
