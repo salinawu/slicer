@@ -74,37 +74,38 @@ def intersection_case(triangle, plane, points):
 	z1 = triangle.p1.z
 	z2 = triangle.p2.z
 	z3 = triangle.p3.z
+	otherpt = triangle.find_other_point()
 
 	# case 1: all points on the plane; save all points
 	if z1==z2==z3:
 		points += [i for i in triangle.return_points()]
-		lines[plane] += calc_line_segments([i for i in triangle.return_points()], -2)
+		#lines[plane] += calc_line_segments([i for i in triangle.return_points()], -2)
 
 	# case 2: two points on the plane; save 2 points on the plane
-	elif triangle.z_low.z == triangle.find_other_point().z == plane:
-		points += [triangle.z_low, triangle.find_other_point()]
-		lines[plane] += calc_line_segments([triangle.z_low, triangle.find_other_point()], triangle.z_high)
-	elif triangle.z_high.z == triangle.find_other_point().z == plane:
-		points += [triangle.z_high, triangle.find_other_point()]
-		lines[plane] += calc_line_segments([triangle.z_low, triangle.find_other_point()], triangle.z_low)
+	elif triangle.z_low.z == otherpt.z == plane:
+		points += [triangle.z_low, otherpt]
+		lines[plane] += calc_line_segments([triangle.z_low, otherpt], triangle.z_high)
+	elif triangle.z_high.z == otherpt.z == plane:
+		points += [triangle.z_high, otherpt]
+		lines[plane] += calc_line_segments([triangle.z_low, otherpt], triangle.z_low)
 
 	# case 3: save point on the plane and where the other intersection point is
-	elif triangle.z_low.z < triangle.find_other_point().z < triangle.z_high:
-		if triangle.find_other_point().z==plane:
-			intersection_pt = _calc_intersection(triangle.z_low, triangle.z_high, triangle.find_other_point(), None, plane)
-			points.append(triangle.find_other_point())
+	elif triangle.z_low.z < otherpt.z < triangle.z_high:
+		if otherpt.z==plane:
+			intersection_pt = _calc_intersection(triangle.z_low, triangle.z_high, otherpt, None, plane)
+			points.append(otherpt)
 			points.append(intersection_pt)
-			lines[plane] += calc_line_segments([triangle.find_other_point(), intersection_pt], -1)
+			lines[plane] += calc_line_segments([otherpt, intersection_pt], -1)
 		elif triangle.find_other_point().z > plane:
 			# save 2 intersection points
-			i1 = _calc_intersection(triangle.z_low, triangle.z_high, triangle.find_other_point(), None, plane)
-			i2 = _calc_intersection(triangle.z_low, triangle.find_other_point(), triangle.find_other_point(), None, plane)
+			i1 = _calc_intersection(triangle.z_low, triangle.z_high, otherpt, None, plane)
+			i2 = _calc_intersection(triangle.z_low, otherpt, otherpt, None, plane)
 			points.append(i1)
 			points.append(i2)
 			lines[plane] += calc_line_segments([i1, i2], -1)
 		else:
-			i1 = _calc_intersection(triangle.z_low, triangle.z_high, triangle.find_other_point(), None, plane)
-			i2 = _calc_intersection(triangle.find_other_point(), triangle.z_high, triangle.find_other_point(), None, plane)
+			i1 = _calc_intersection(triangle.z_low, triangle.z_high, otherpt, None, plane)
+			i2 = _calc_intersection(otherpt, triangle.z_high, otherpt, None, plane)
 			points.append(i1)
 			points.append(i2)
 			lines[plane] += calc_line_segments([i1, i2], -1)
