@@ -92,3 +92,23 @@ class Line():
 
     def same_line(self, l):
         return self.p1.is_equal(l.p1) and self.p2.is_equal(l.p2)
+
+    def slope(self):
+        return (self.p2.y - self.p1.y) / (self.p2.x - self.p1.x) if not (self.p2.x - self.p1.x) else float("inf")
+
+    def y_int(self):
+        slope = self.slope()
+        return self.p1.y - (slope * self.p1.x) if slope != float("inf") else float("inf")
+
+    def horizontal_intersection(self, y):
+        slope = self.slope()
+        if min(self.p1.y, self.p2.y) <= y <= max(self.p1.y, self.p2.y):
+            if slope == float("inf"):
+                return Point(self.p1.x, y, self.p1.z)
+            else:
+            # find point of intersection on entire line and return
+            # if it's in the line segment
+            x = (y-self.y_int())/slope
+            if min(self.p1.x, self.p2.x) <= x <= max(self.p1.x, self.p2.x):
+                return Point(x, y, self.p1.z)
+        return False 

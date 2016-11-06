@@ -79,7 +79,7 @@ def intersection_case(triangle, plane, points):
 	# case 1: all points on the plane; save all points
 	if z1==z2==z3:
 		points += [i for i in triangle.return_points()]
-		#lines[plane] += calc_line_segments([i for i in triangle.return_points()], -2)
+		lines[plane] += calc_line_segments([i for i in triangle.return_points()], -2)
 
 	# case 2: two points on the plane; save 2 points on the plane
 	elif triangle.z_low.z == otherpt.z == plane:
