@@ -62,12 +62,12 @@ def calc_points(max_z, thickness):
 	for plane in range(0, max_z, thickness):
 		lines[plane] = []
 		for t in triangles:
-			if triangle_intersects_plane?(t, plane):
+			if triangle_intersects_plane(t, plane):
 				# return the intersecting points and calculate the correponding line segments
-				points = intersection_case(triangle, plane, points)
+				points = intersection_case(t, plane, points)
 	return points
 
-def triangle_intersects_plane?(t, plane):
+def triangle_intersects_plane(t, plane):
 	return t.z_low.z <= plane <= t.z_high.z
 
 def intersection_case(triangle, plane, points):
@@ -79,7 +79,7 @@ def intersection_case(triangle, plane, points):
 	# case 1: all points on the plane; save all points
 	if z1==z2==z3:
 		points += [i for i in triangle.return_points()]
-		#lines[plane] += calc_line_segments([i for i in triangle.return_points()], -2)
+		lines[plane] += calc_line_segments([i for i in triangle.return_points()], -2)
 
 	# case 2: two points on the plane; save 2 points on the plane
 	elif triangle.z_low.z == otherpt.z == plane:
@@ -129,7 +129,7 @@ def remove_dup_lines():
 		for l in lines[plane]:
 			exclude_self = lines[plane].remove(l)
 			# find all the lines identical to the one we're currently looking at
-			same_lines = [x if l.same_line(x) for x in exclude_self]
+			same_lines = [x for x in exclude_self if l.same_line(x)]
 			for same in same_lines:
 				# we might have already taken out the line in contention
 				if l not in lines[plane]:
@@ -147,22 +147,8 @@ def remove_line_segments(l1, l2, plane):
 	else:
 		raise NameError('should never end up in this case')
 
-def link_line_segments():
-	segments = [] #list of points
-	while lines:
-		for l in lines[plane]:
-			point = l.p1
-			exclude_self = lines[plane].remove(l)
-			for line in exclude_self:
-				if point.is_equal(line.p1):
-					segments += [point, l.p2, line.p2, line.p1]
-					break
-				elif point.is_equal(line.p2):
-					segments += [point, l.p2, line.p1, line.p2]
-					break
 
 parse_stl_file("cubetest.stl")
-points = calc_points()
-for p in points:
-	p.print_point()
-	print
+pts = calc_points(10, 10)
+remove_dup_lines()
+
