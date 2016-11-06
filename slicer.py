@@ -129,7 +129,7 @@ def remove_dup_lines():
 		for l in lines[plane]:
 			exclude_self = lines[plane].remove(l)
 			# find all the lines identical to the one we're currently looking at
-			same_lines = [x if l.same_line?(x) for x in exclude_self]
+			same_lines = [x if l.same_line(x) for x in exclude_self]
 			for same in same_lines:
 				# we might have already taken out the line in contention
 				if l not in lines[plane]:
@@ -146,6 +146,20 @@ def remove_line_segments(l1, l2, plane):
 		 lines[plane].remove(l2)
 	else:
 		raise NameError('should never end up in this case')
+
+def link_line_segments():
+	segments = [] #list of points
+	while lines:
+		for l in lines[plane]:
+			point = l.p1
+			exclude_self = lines[plane].remove(l)
+			for line in exclude_self:
+				if point.is_equal(line.p1):
+					segments += [point, l.p2, line.p2, line.p1]
+					break
+				elif point.is_equal(line.p2):
+					segments += [point, l.p2, line.p1, line.p2]
+					break
 
 parse_stl_file("cubetest.stl")
 points = calc_points()

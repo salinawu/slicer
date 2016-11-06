@@ -4,8 +4,10 @@ from shapes import Triangle
 high = Point(0,0,4)
 low = Point(0,0,-1)
 we = Point(0,0,3)
+we2 = Point(0,0,3)
 
 print we.is_equal(high)
+print we.is_equal(we2)
 
 tri = Triangle(high,low,we)
 print "high: " + tri.z_high.point_tos() + " expected: 0 0 4"
