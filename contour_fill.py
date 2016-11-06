@@ -17,9 +17,19 @@ def contour_fill(perimeters, lines, density):
     max_y = max(perimeters[0], key=lambda y: y.y)
     min_y = min(perimeters[0], key=lambda y: y.y)
 
+    line_segments = []
     # density should be a percentage; e.g. 20% or 0.20
     step = (max_y - min_y) * density
-    for i in range(min_y, max_y+step, step):
+    for y in range(min_y, max_y+step, step):
+        intersections = find_intersections(lines, y)
+        num_segs = len(line_segments)
+        if num_segs % 2 != 0:
+            raise NameError('should have an even number of intersections')
+        for i in range(0, num_segs, 2):
+            # append only even to odd intersection points
+            line_segments.append(intersections[i], intersections[i+1])
+
+    return line_segments
 
 
 # find the intersections between a y axis and a list of lines
