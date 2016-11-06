@@ -20,17 +20,17 @@ def parse_point(line):
 # stores all the triangles from an stl file into global array of triangles
 def parse_stl_file(filename):
 	with open(filename, 'r') as f:
-		lines = f.readlines()
-		length = len(lines)
+		filelines = f.readlines()
+		length = len(filelines)
 		i = 0
 		while i < length:
-			line = lines[i]
+			line = filelines[i]
 			p1 = None
 			if "vertex" in line:
 				p1 = parse_point(line)
-				line = lines[i+1]
+				line = filelines[i+1]
 				p2 = parse_point(line)
-				line = lines[i+2]
+				line = filelines[i+2]
 				p3 = parse_point(line)
 				triangles.append(Triangle(p1, p2, p3))
 				i += 3
@@ -59,15 +59,15 @@ def calc_points(max_z, thickness):
 	#sorts triangles in ascending order by comparing lowest z-axis vertices
 	sorted_triangles = sorted(triangles, key=lambda x: x.z_low.z, reverse=False)
 
-	for plane in range(0, max_z, thickness):
+	#TODO: DETERMINE WHAT MIN Z TO START AT
+	for plane in range(-10, max_z, thickness):
 		lines[plane] = []
 		for t in triangles:
-			if triangle_intersects_plane?(t, plane):
-				# return the intersecting points and calculate the correponding line segments
-				points = intersection_case(triangle, plane, points)
-	return points
+			if triangle_intersects_plane(t, plane):
+				# calculate the intersecting points and calculate the correponding line segments
+				intersection_case(t, plane, points)
 
-def triangle_intersects_plane?(t, plane):
+def triangle_intersects_plane(t, plane):
 	return t.z_low.z <= plane <= t.z_high.z
 
 def intersection_case(triangle, plane, points):
@@ -127,9 +127,10 @@ def remove_dup_lines():
 	for plane in lines.keys():
 		# l is each line in the corresponding plane
 		for l in lines[plane]:
-			exclude_self = lines[plane].remove(l)
+			exclude_self = lines[plane]
+			exclude_self.remove(l)
 			# find all the lines identical to the one we're currently looking at
-			same_lines = [x if l.same_line(x) for x in exclude_self]
+			same_lines = [x for x in exclude_self if l.same_line(x)]
 			for same in same_lines:
 				# we might have already taken out the line in contention
 				if l not in lines[plane]:
@@ -147,22 +148,6 @@ def remove_line_segments(l1, l2, plane):
 	else:
 		raise NameError('should never end up in this case')
 
-def link_line_segments():
-	segments = [] #list of points
-	while lines:
-		for l in lines[plane]:
-			point = l.p1
-			exclude_self = lines[plane].remove(l)
-			for line in exclude_self:
-				if point.is_equal(line.p1):
-					segments += [point, l.p2, line.p2, line.p1]
-					break
-				elif point.is_equal(line.p2):
-					segments += [point, l.p2, line.p1, line.p2]
-					break
-
 parse_stl_file("cubetest.stl")
-points = calc_points()
-for p in points:
-	p.print_point()
-	print
+calc_points(10, 10)
+remove_dup_lines()
