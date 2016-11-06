@@ -1,13 +1,19 @@
 #!/usr/bin/python
-from shapes import Point
-from shapes import Triangle
-from shapes import Line
+from shapes import *
+from contour_fill import *
 
 #
 # begin file parsing into points and eventually triangles and then line segments
 #
 triangles = []
+
+# this is the dict of perimeter lines; each key corresponds to a z-axis plane
+# and the values are the line segments
 lines = {}
+
+# this is the dict of segments representing fill space; i.e. what needs to be converted to g-code
+# keys represent z-axis planes, each with line segments
+contour_segments = {}
 
 # takes in a line from a file of the form 'vertex x y z' and returns the point corresponding to it
 def parse_point(line):
@@ -60,6 +66,7 @@ def calc_points(max_z, thickness):
 	sorted_triangles = sorted(triangles, key=lambda x: x.z_low.z, reverse=False)
 
 	#TODO: DETERMINE WHAT MIN Z TO START AT
+	# shouldn't it be 0?
 	for plane in range(-10, max_z, thickness):
 		lines[plane] = []
 		for t in triangles:
@@ -147,6 +154,15 @@ def remove_line_segments(l1, l2, plane):
 		 lines[plane].remove(l2)
 	else:
 		raise NameError('should never end up in this case')
+
+# fill in the contours from the perimeters for each plane
+def fill_all_plane_contours(density):
+	for plane, ls in lines:
+		contour_segments[plane] = contour_fill(perimeters, ls, density, 'horizontal')
+		contour_segments[plane] += contour_fill(perimeters, ls, density, 'vertical')
+
+# at this point, contour_segments should be a dictionary of planes, each plane populated with a single array of
+# line segments representing what must be filled at that level, horizontal segments and then vertical segments 
 
 parse_stl_file("cubetest.stl")
 calc_points(10, 10)

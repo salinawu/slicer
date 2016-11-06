@@ -108,7 +108,18 @@ class Line():
             else:
             # find point of intersection on entire line and return
             # if it's in the line segment
-            x = (y-self.y_int())/slope
-            if min(self.p1.x, self.p2.x) <= x <= max(self.p1.x, self.p2.x):
-                return Point(x, y, self.p1.z)
-        return False 
+                x = (y-self.y_int())/slope
+                if min(self.p1.x, self.p2.x) <= x <= max(self.p1.x, self.p2.x):
+                    return Point(x, y, self.p1.z)
+        return False
+
+    def vertical_intersection(self, x):
+        slope = self.slope()
+        if slope == float("inf"):
+            return False
+        y = slope * x + self.y_int()
+        if (min(self.p1.x, self.p2.x) <= x <= max(self.p1.x, self.p2.x)) and (min(self.p1.y, self.p2.y) <= y <= max(self.p1.y, self.p2.y)):
+            # find point of intersection on entire line and return
+            # if it's in the line segment
+            return Point(x, y, self.p1.z)
+        return False
