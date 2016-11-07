@@ -79,6 +79,9 @@ class Triangle:
         else:
             return self.p3
 
+    def intersects_plane(self, plane):
+        return self.z_low.z <= plane <= self.z_high.z
+
     def print_triangle(self):
         print self.p1.point_tos()
         print self.p2.point_tos()

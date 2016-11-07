@@ -44,6 +44,8 @@ def parse_stl_file(filename):
 			else:
 				i += 1
 
+parse_stl_file("cubetest.stl")
+
 #calculates the intersection of 2 line segments, given by p1-p2 and p3-p4
 def _calc_intersection(p1, p2, p3, p4, z):
 	if (p4 == None):
@@ -71,12 +73,9 @@ def calc_points(max_z, thickness):
 	for plane in range(-10, max_z, thickness):
 		lines[plane] = []
 		for t in triangles:
-			if triangle_intersects_plane(t, plane):
+			if t.intersects_plane(plane):
 				# calculate the intersecting points and calculate the correponding line segments
 				intersection_case(t, plane, points)
-
-def triangle_intersects_plane(t, plane):
-	return t.z_low.z <= plane <= t.z_high.z
 
 def intersection_case(triangle, plane, points):
 	z1 = triangle.p1.z
@@ -98,13 +97,17 @@ def intersection_case(triangle, plane, points):
 		lines[plane] += calc_line_segments([triangle.z_low, otherpt], triangle.z_low)
 
 	# case 3: save point on the plane and where the other intersection point is
-	elif triangle.z_low.z < otherpt.z < triangle.z_high:
+	elif triangle.z_low.z <= otherpt.z <= triangle.z_high.z:
+		# case 5: don't do anything
+		if (otherpt.z != triangle.z_low.z and triangle.z_low.z == plane) or (otherpt.z != triangle.z_high.z and triangle.z_high.z == plane):
+			return
+
 		if otherpt.z==plane:
 			intersection_pt = _calc_intersection(triangle.z_low, triangle.z_high, otherpt, None, plane)
 			points.append(otherpt)
 			points.append(intersection_pt)
 			lines[plane] += calc_line_segments([otherpt, intersection_pt], -1)
-		elif triangle.find_other_point().z > plane:
+		elif otherpt.z > plane:
 			# save 2 intersection points
 			i1 = _calc_intersection(triangle.z_low, triangle.z_high, otherpt, None, plane)
 			i2 = _calc_intersection(triangle.z_low, otherpt, otherpt, None, plane)
@@ -118,8 +121,6 @@ def intersection_case(triangle, plane, points):
 			points.append(i2)
 			lines[plane] += calc_line_segments([i1, i2], -1)
 
-	# case 5: don't do anything
-
 # calculate the line segments based on a list of 2 or 3 points as well as the corresponding z value
 def calc_line_segments(ps, z):
 	length = len(ps)
@@ -129,6 +130,8 @@ def calc_line_segments(ps, z):
 		return [Line(ps[0], ps[1], z), Line(ps[2], ps[1], z), Line(ps[2], ps[0], z)]
 	else:
 		raise NameError('can only have 2 or 3 points')
+
+calc_points(10, 10)
 
 def remove_dup_lines():
 	# plane is the z value of each plane
@@ -158,8 +161,8 @@ def remove_line_segments(l1, l2, plane):
 
 def link_line_segments():
 	points = [] #list of list of points to be returned
-	for plane in lines:
-		exclude_lines = lines[plane]
+	for plane, exclude_lines in lines:
+
 		#if no lines in the plane, we skip
 		if not exclude_lines:
 			continue
@@ -181,7 +184,7 @@ def link_line_segments():
 						exclude_lines.remove(line)
 						line = line2
 						point2 = line2.p2
-						break	
+						break
 					elif line.p2.is_equal(line2.p2):
 						points_list += [line.p2, line2.p1]
 						exclude_lines.remove(line)
@@ -199,12 +202,11 @@ def fill_all_plane_contours(density):
 		contour_segments[plane] += contour_fill(perimeters, ls, density, 'vertical')
 
 # at this point, contour_segments should be a dictionary of planes, each plane populated with a single array of
-# line segments representing what must be filled at that level, horizontal segments and then vertical segments 
+# line segments representing what must be filled at that level, horizontal segments and then vertical segments
 
-parse_stl_file("cubetest.stl")
-calc_points(10, 10)
-remove_dup_lines()
-perimeter = link_line_segments()
-for p in perimeter:
-	print p
-
+# parse_stl_file("cubetest.stl")
+# calc_points(10, 10)
+# remove_dup_lines()
+#perimeter = link_line_segments()
+#for p in perimeter:
+#	print p
