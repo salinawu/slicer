@@ -41,7 +41,7 @@ def cube_gcode(fill_density = 0.20, perimeter_layers = 2, thickness = 0.1):
     G1 F200 E3              ;extrude 3mm of feed stock \
     G92 E0                  ;zero the extruded length again \
     G1 F4200 \
-    M117 Printing...")
+    M117 Printing...\n")
 
     extruded = 0
 
@@ -50,11 +50,11 @@ def cube_gcode(fill_density = 0.20, perimeter_layers = 2, thickness = 0.1):
         # first, loop through the perimeters and fill them in
         gcode.write(";Layer: " + str(plane) + "\n")
         if index==0:
-            gcode.write("M107")
+            gcode.write("M107\n")
         elif index==1:
-            gcode.write("M106 S127")
+            gcode.write("M106 S127\n")
         elif index==2:
-            gcode.write("M106 S255")
+            gcode.write("M106 S255\n")
 
         for i in range(perimeter_layers):
             for ps in perimeters:
