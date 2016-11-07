@@ -21,16 +21,23 @@ def cube_gcode(fill_density = 0.20, perimeter_layers = 2, thickness = 0.1):
     # generates a dictionary of line segments to print out organized by plane
     contour_segments = fill_all_plane_contours(fill_density)
 
-    gcode = open('cube.gcode', 'w+')
+    gcode = open('simpleCube.gcode', 'w+')
 
     gcode.write("M109 S207.000000")
     gcode.write(";Basic settings: Layer height:" + str(thickness) + " Wall layers:" + str(perimeter_layers) + "Fill:" + str(fill_density))
     # TODO: gcode.write() the pre-printing stuff
 
     extruded = 0
-    for plane, perimeters in perimeter_points:
+    for index, plane, perimeters in enumerate(perimeter_points):
         # first, loop through the perimeters and fill them in
         gcode.write(";Layer: " + str(plane))
+        if index==0:
+            gcode.write("M107")
+        elif index==1:
+            gcode.write("M106 S127")
+        elif index==2:
+            gcode.write("M106 S255")
+
         for i in range(perimeter_layers):
             for ps in perimeters:
                 gcode.write(";Printing perimeter")
