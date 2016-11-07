@@ -95,6 +95,9 @@ class Line():
         self.p2 = p2
         self.z = z
 
+    def line_tos(self):
+        return "p1: " + self.p1.point_tos() + " p2: " + self.p2.point_tos()
+
     def same_line(self, l):
         return self.p1.is_equal(l.p1) and self.p2.is_equal(l.p2)
 
