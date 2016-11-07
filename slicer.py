@@ -154,7 +154,7 @@ def remove_line_segments(l1, l2, plane):
 def link_line_segments():
 	points = {} #dictionary of a list of list of points to be returned
 	for plane in lines:
-		exclude_lines = lines[plane]
+		exclude_lines = copy.copy(lines[plane])
 		#if no lines in the plane, we skip
 		if not exclude_lines:
 			continue
@@ -197,12 +197,11 @@ def fill_all_plane_contours(density, points):
 	# this is the dict of segments representing fill space; i.e. what needs to be converted to g-code
 	# keys represent z-axis planes, each with line segments
 	contour_segments = {}
-
 	for plane in lines:
 		# list of a list of points (representing a list of perimeters)
 		ps = points[plane]
 		# list of line segments on each plane
-		ls = lines[plane]
+		ls = lines[plane] 
 		contour_segments[plane] = contour_fill(ps, ls, density, 'horizontal')
 		contour_segments[plane] += contour_fill(ps, ls, density, 'vertical')
 	return contour_segments

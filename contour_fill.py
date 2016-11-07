@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from shapes import *
 import numpy as np
+import pdb
 
 # takes in a list of a list of points (list of perimeters), list of list of lines, desired fill density,
 # and direction (horizontal vs vertical)
@@ -15,20 +16,20 @@ def contour_fill(perimeters, lines, density, direction):
 
     # look at the first perimeter because we sorted by outermost layer
     max_val = max(perimeters[0], key=lambda y: y.y).y if direction == 'horizontal' else  max(perimeters[0], key=lambda y: y.x).x
-    min_val = min(perimeters[0], key=lambda y: y.y).y if direction == 'horizontal' else  max(perimeters[0], key=lambda y: y.x).x
+    min_val = min(perimeters[0], key=lambda y: y.y).y if direction == 'horizontal' else  min(perimeters[0], key=lambda y: y.x).x
 
     line_segments = []
     # density should be a percentage; e.g. 20% or 0.20
-    step = (max_val - min_val) * density
-    for y in np.linspace(min_val, max_val+step, step):
+    step = (max_val - min_val) / density
+
+    for y in np.arange(min_val, max_val+step, step):
         intersections = find_intersections(flatten_list, y, direction)
-        num_segs = len(line_segments)
+        num_segs = len(intersections)
         if num_segs % 2 != 0:
             raise NameError('should have an even number of intersections')
         for i in range(0, num_segs, 2):
             # append only even to odd intersection points
-            line_segments.append(intersections[i], intersections[i+1])
-
+            line_segments.append(Line(intersections[i], intersections[i+1], intersections[i+1].z))
     return line_segments
 
 
@@ -58,5 +59,7 @@ def find_intersections(lines, y, direction):
                 # case 1 and case 2 subcase a
                 intersection_points.append(intersection)
 
+    intersection_points.sort(key=lambda p:p.x) if direction == 'horizontal' else intersection_points.sort(key=lambda p:p.y)
     # order list and return
-    return intersection_points.sort(key=lambda p:p.x) if direction == 'horizontal' else intersection_points.sort(key=lambda p:p.y)
+
+    return intersection_points

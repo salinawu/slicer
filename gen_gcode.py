@@ -4,7 +4,7 @@ from contour_fill import *
 from slicer import *
 import copy
 
-def cube_gcode(fill_density = 0.20, perimeter_layers = 2, thickness = 0.1):
+def cube_gcode(fill_density = 20, perimeter_layers = 2, thickness = 0.1):
     # run everything to get contour_segments populated:
 
     # parse the stl file so that we have all the triangles
@@ -29,7 +29,7 @@ def cube_gcode(fill_density = 0.20, perimeter_layers = 2, thickness = 0.1):
     # TODO: gcode.write() the pre-printing stuff
 
     extruded = 0
-    for plane in perimeter_points:
+    for plane in sorted(perimeter_points):
         perimeters = perimeter_points[plane]
         # first, loop through the perimeters and fill them in
         gcode.write(";Layer: " + str(plane) + "\n")
