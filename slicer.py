@@ -2,6 +2,7 @@
 from shapes import *
 from contour_fill import *
 import copy
+import numpy as np
 
 #
 # begin file parsing into points and eventually triangles and then line segments
@@ -72,12 +73,11 @@ def calc_points(thickness):
 
 	min_z = sorted_triangles[0].z_low.z
 	max_z = max(triangles, key=lambda x: x.z_high.z).z_high.z
-	print len(triangles)
-	for plane in range(min_z, max_z+thickness, thickness):
+
+	for plane in np.arange(min_z, max_z+thickness, thickness):
 		lines[plane] = []
 		for t in triangles:
 			if t.intersects_plane(plane):
-				print plane
 				# calculate the intersecting points and calculate the correponding line segments
 				intersection_case(t, plane, points)
 
@@ -138,10 +138,11 @@ def calc_line_segments(ps, z):
 
 def remove_dup_lines():
 	# plane is the z value of each plane
-	for plane, lines in lines.keys():
+	for plane in lines:
+		ls = lines[plane]
 		# l is each line in the corresponding plane
-		for l in lines:
-			exclude_self = copy.copy(lines)
+		for l in ls:
+			exclude_self = copy.copy(ls)
 			exclude_self.remove(l)
 			# find all the lines identical to the one we're currently looking at
 			same_lines = [x for x in exclude_self if l.same_line(x)]
@@ -163,9 +164,10 @@ def remove_line_segments(l1, l2, plane):
 		raise NameError('should never end up in this case')
 
 def link_line_segments():
-	points = [] #list of list of points to be returned
-	for plane, exclude_lines in lines:
-
+	points = defaultdic(list) #dictionary of a list of list of points to be returned
+	for plane in lines:
+		exclude_lines = lines[plane]
+		print exclude_lines
 		#if no lines in the plane, we skip
 		if not exclude_lines:
 			continue
@@ -175,10 +177,11 @@ def link_line_segments():
 			start_point = line.p1
 			point2 = None
 			points_list.append(start_point)
+			print "start point: " + start_point.point_tos()
 			if len(exclude_lines) <= 1:
 				break
 
-			while not start_point.is_equal(point2):
+			while start_point.is_equal(point2) == False:
 				exclude_self = copy.copy(exclude_lines)
 				exclude_self.remove(line)
 				for line2 in exclude_self:
@@ -187,14 +190,18 @@ def link_line_segments():
 						exclude_lines.remove(line)
 						line = line2
 						point2 = line2.p2
+						print "IFpoint2 : " + point2.point_tos()
 						break
 					elif line.p2.is_equal(line2.p2):
 						points_list += [line.p2, line2.p1]
 						exclude_lines.remove(line)
 						line = line2
 						point2 = line2.p1
+						print "ELIFpoint2 : " + point2.point_tos()
 						break
-		points.append(points_list)
+				# print "point2: " + point2.point_tos()
+		points[plane] = points_list
+
 	return points
 
 # fill in the contours from the perimeters for each plane
@@ -208,8 +215,7 @@ def fill_all_plane_contours(density):
 
 parse_stl_file("cubetest.stl")
 calc_points(10)
-print [len(lines[i]) for i in lines.keys()]
-# remove_dup_lines()
+remove_dup_lines()
 #perimeter = link_line_segments()
 #for p in perimeter:
 #	print p
