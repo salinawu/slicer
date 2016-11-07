@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from shapes import *
 from contour_fill import *
+from collections import defaultdict
 import copy
 import numpy as np
 
@@ -47,22 +48,11 @@ def parse_stl_file(filename):
 
 #parse_stl_file("cubetest.stl")
 
-#calculates the intersection of 2 line segments, given by p1-p2 and p3-p4
-def _calc_intersection(p1, p2, p3, p4, z):
-	if (p4 == None):
-		p4 = Point(p3.x+50, p3.y, p3.z)
-		p3 = Point(p3.x-50, p3.y, p3.z)
-	deltx1 = p2.x - p1.x
-	delty1 = p2.y - p1.y
-	deltx2 = p4.x - p3.x
-	delty2 = p4.y - p3.y
-	m1 = 0 if not deltx1 else delty1/deltx1
-	m2 = 0 if not deltx2 else delty2/deltx2
-	b1 = p1.y - m1*p1.x
-	b2 = p3.y - m2*p3.x
-	x = 0 if not m1-m2 else (b2-b1)/(m1-m2)
-	y = m1*x + b1
-	return Point(x, y, z)
+#calculates the intersection of a line <p1,p2> and a plane in 3D
+def calc_intersection(p1, p2, z):
+	plane = Plane(Point(0,0,z), Vector(0,0,1))
+	vector = Vector(p2.x - p1.x, p2.y - p1.y, p2.z - p1.z)
+	return plane.line_intersection(vector, p1)
 
 # loops through each plane and triangle, finds the points of intersections
 # will populate lines dictionary (by way of intersection_case())
@@ -108,20 +98,20 @@ def intersection_case(triangle, plane, points):
 			return
 
 		if otherpt.z==plane:
-			intersection_pt = _calc_intersection(triangle.z_low, triangle.z_high, otherpt, None, plane)
+			intersection_pt = calc_intersection(triangle.z_low, triangle.z_high, plane)
 			points.append(otherpt)
 			points.append(intersection_pt)
 			lines[plane] += calc_line_segments([otherpt, intersection_pt], -1)
 		elif otherpt.z > plane:
 			# save 2 intersection points
-			i1 = _calc_intersection(triangle.z_low, triangle.z_high, otherpt, None, plane)
-			i2 = _calc_intersection(triangle.z_low, otherpt, otherpt, None, plane)
+			i1 = calc_intersection(triangle.z_low, triangle.z_high, plane)
+			i2 = calc_intersection(triangle.z_low, otherpt, plane)
 			points.append(i1)
 			points.append(i2)
 			lines[plane] += calc_line_segments([i1, i2], -1)
 		else:
-			i1 = _calc_intersection(triangle.z_low, triangle.z_high, otherpt, None, plane)
-			i2 = _calc_intersection(otherpt, triangle.z_high, otherpt, None, plane)
+			i1 = calc_intersection(triangle.z_low, triangle.z_high, plane)
+			i2 = calc_intersection(triangle.z_high, otherpt, plane)
 			points.append(i1)
 			points.append(i2)
 			lines[plane] += calc_line_segments([i1, i2], -1)
@@ -139,12 +129,12 @@ def calc_line_segments(ps, z):
 def remove_dup_lines():
 	# plane is the z value of each plane
 	for plane in lines:
-		ls = lines[plane]
 		# l is each line in the corresponding plane
-		for l in ls:
-			exclude_self = copy.copy(ls)
+		for l in lines[plane]:
+			exclude_self = copy.copy(lines[plane])
 			exclude_self.remove(l)
 			# find all the lines identical to the one we're currently looking at
+
 			same_lines = [x for x in exclude_self if l.same_line(x)]
 			for same in same_lines:
 				# we might have already taken out the line in contention
@@ -155,6 +145,8 @@ def remove_dup_lines():
 # uses algo from paper to determine whether we should remove 1 or both line segments
 # should only arrive here if l1==l2
 def remove_line_segments(l1, l2, plane):
+	# print "plane: " + str(plane)
+	# print "line1: " + l1.line_tos() + " line2: " + l1.line_tos()
 	if (l1.z == l2.z == -2) or (l1.z > plane and l2.z > plane) or (l1.z < plane and l2.z < plane):
 		lines[plane].remove(l1)
 		lines[plane].remove(l2)
@@ -164,42 +156,43 @@ def remove_line_segments(l1, l2, plane):
 		raise NameError('should never end up in this case')
 
 def link_line_segments():
-	points = defaultdic(list) #dictionary of a list of list of points to be returned
+	points = {} #dictionary of a list of list of points to be returned
 	for plane in lines:
 		exclude_lines = lines[plane]
-		print exclude_lines
 		#if no lines in the plane, we skip
 		if not exclude_lines:
 			continue
 		points_list = []
-		while True:
+		while len(exclude_lines) > 1:
+			perimeter = []
 			line = exclude_lines[0]
-			start_point = line.p1
-			point2 = None
-			points_list.append(start_point)
-			print "start point: " + start_point.point_tos()
-			if len(exclude_lines) <= 1:
-				break
+			start_point = line.p1 #the point we must get back to
+			point2 = line.p2 #the point we use to trace the perimeter
+			perimeter.append(start_point)
+			exclude_self = copy.copy(exclude_lines)
+			exclude_self.remove(line)
 
-			while start_point.is_equal(point2) == False:
+			while not start_point.is_equal(point2):
+
 				exclude_self = copy.copy(exclude_lines)
 				exclude_self.remove(line)
+
 				for line2 in exclude_self:
-					if line.p2.is_equal(line2.p1):
-						points_list += [line.p2, line2.p2]
+					if line2.contains(point2):
+						#line2.p2 is the point to be compared next
+						if line2.p1.is_equal(point2):
+							perimeter += [line.p2, line2.p2]
+							point2 = line2.p2
+						#line2.p1 is the point to be compared next
+						else:
+							perimeter += [line.p2, line2.p1]
+							point2 = line2.p1
 						exclude_lines.remove(line)
 						line = line2
-						point2 = line2.p2
-						print "IFpoint2 : " + point2.point_tos()
-						break
-					elif line.p2.is_equal(line2.p2):
-						points_list += [line.p2, line2.p1]
-						exclude_lines.remove(line)
-						line = line2
-						point2 = line2.p1
-						print "ELIFpoint2 : " + point2.point_tos()
-						break
-				# print "point2: " + point2.point_tos()
+
+			perimeter.append(start_point) #for salina
+			points_list.append(perimeter)
+			
 		points[plane] = points_list
 
 	return points
@@ -216,6 +209,5 @@ def fill_all_plane_contours(density):
 parse_stl_file("cubetest.stl")
 calc_points(10)
 remove_dup_lines()
-#perimeter = link_line_segments()
-#for p in perimeter:
-#	print p
+link_line_segments()
+

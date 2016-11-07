@@ -102,6 +102,8 @@ class Line():
         return (self.p1.is_equal(l.p1) and self.p2.is_equal(l.p2)) or (self.p1.is_equal(l.p2) and self.p2.is_equal(l.p1))
 
     def contains(self, point):
+        if point == None:
+            return False
         return self.p1.is_equal(point) or self.p2.is_equal(point)
 
     def slope(self):
