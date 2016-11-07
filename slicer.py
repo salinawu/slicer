@@ -190,7 +190,6 @@ def link_line_segments():
 						exclude_lines.remove(line)
 						line = line2
 
-			perimeter.append(start_point) #for salina
 			points_list.append(perimeter)
 			
 		points[plane] = points_list
@@ -209,5 +208,4 @@ def fill_all_plane_contours(density):
 parse_stl_file("cubetest.stl")
 calc_points(10)
 remove_dup_lines()
-link_line_segments()
-
+perimeter = link_line_segments()
