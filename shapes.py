@@ -96,7 +96,7 @@ class Line():
         self.z = z
 
     def line_tos(self):
-        return "p1: " + self.p1.point_tos() + " p2: " + self.p2.point_tos()
+        return "p1: " + self.p1.point_tos() + " p2: " + self.p2.point_tos() + " z: " + str(self.z)
 
     def same_line(self, l):
         return (self.p1.is_equal(l.p1) and self.p2.is_equal(l.p2)) or (self.p1.is_equal(l.p2) and self.p2.is_equal(l.p1))
@@ -105,7 +105,7 @@ class Line():
         return self.p1.is_equal(point) or self.p2.is_equal(point)
 
     def slope(self):
-        return (self.p2.y - self.p1.y) / (self.p2.x - self.p1.x) if not (self.p2.x - self.p1.x) else float("inf")
+        return (self.p2.y - self.p1.y) / (self.p2.x - self.p1.x) if (self.p2.x - self.p1.x) != 0 else float("inf")
 
     def y_int(self):
         slope = self.slope()
