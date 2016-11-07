@@ -13,6 +13,8 @@ class Point:
         self.z = z
 
     def is_equal(self, other):
+        if other == None:
+            return False
     	return self.x == other.x and self.y == other.y and self.z == other.z
 
     def print_point(self):
@@ -92,3 +94,6 @@ class Line():
 
     def same_line(self, l):
         return self.p1.is_equal(l.p1) and self.p2.is_equal(l.p2)
+
+    def contains(self, point):
+        return self.p1.is_equal(point) or self.p2.is_equal(point)

@@ -2,6 +2,7 @@
 from shapes import Point
 from shapes import Triangle
 from shapes import Line
+import copy
 
 #
 # begin file parsing into points and eventually triangles and then line segments
@@ -148,6 +149,46 @@ def remove_line_segments(l1, l2, plane):
 	else:
 		raise NameError('should never end up in this case')
 
+def link_line_segments():
+	points = [] #list of list of points to be returned
+	for plane in lines:
+		exclude_lines = lines[plane]
+		#if no lines in the plane, we skip
+		if not exclude_lines:
+			continue
+		points_list = []
+		while True:
+			line = exclude_lines[0]
+			start_point = line.p1
+			point2 = None
+			points_list.append(start_point)
+			if len(exclude_lines) <= 1:
+				break
+
+			while not start_point.is_equal(point2):
+				exclude_self = copy.copy(exclude_lines)
+				exclude_self.remove(line)
+				for line2 in exclude_self:
+					if line.p2.is_equal(line2.p1):
+						points_list += [line.p2, line2.p2]
+						exclude_lines.remove(line)
+						line = line2
+						point2 = line2.p2
+						break	
+					elif line.p2.is_equal(line2.p2):
+						points_list += [line.p2, line2.p1]
+						exclude_lines.remove(line)
+						line = line2
+						point2 = line2.p1
+						break
+		points.append(points_list)
+
+	return points
+
 parse_stl_file("cubetest.stl")
 calc_points(10, 10)
 remove_dup_lines()
+perimeter = link_line_segments()
+for p in perimeter:
+	print p
+
