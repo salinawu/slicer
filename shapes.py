@@ -20,7 +20,7 @@ class Point:
     	return self.x == other.x and self.y == other.y and self.z == other.z
 
     def dist_from_point(self, p):
-        return math.sqrt(sum(self.x - p.x, self.y - p.y, self.z - p.z))
+        return math.sqrt(sum([math.pow(self.x - p.x, 2), math.pow(self.y - p.y, 2), math.pow(self.z - p.z, 2)]))
 
     def print_point(self):
         print str(self.x) + ' ' + str(self.y) + ' ' + str(self.z)
