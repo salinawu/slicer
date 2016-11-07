@@ -96,7 +96,7 @@ class Line():
         self.z = z
 
     def same_line(self, l):
-        return self.p1.is_equal(l.p1) and self.p2.is_equal(l.p2)
+        return (self.p1.is_equal(l.p1) and self.p2.is_equal(l.p2)) or (self.p1.is_equal(l.p2) and self.p2.is_equal(l.p1))
 
     def contains(self, point):
         return self.p1.is_equal(point) or self.p2.is_equal(point)
