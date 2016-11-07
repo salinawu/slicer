@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from shapes import *
 from contour_fill import *
+from slicer import *
 import copy
 
 def cube_gcode(fill_density = 0.20, perimeter_layers = 2, thickness = 0.1):
@@ -19,18 +20,20 @@ def cube_gcode(fill_density = 0.20, perimeter_layers = 2, thickness = 0.1):
     perimeter_points = link_line_segments()
 
     # generates a dictionary of line segments to print out organized by plane
-    contour_segments = fill_all_plane_contours(fill_density)
+    contour_segments = fill_all_plane_contours(fill_density, perimeter_points)
 
     gcode = open('simpleCube.gcode', 'w+')
 
-    gcode.write("M109 S207.000000")
-    gcode.write(";Basic settings: Layer height:" + str(thickness) + " Wall layers:" + str(perimeter_layers) + "Fill:" + str(fill_density))
+    gcode.write("M109 S207.000000\n")
+    gcode.write(";Basic settings: Layer height:" + str(thickness) + " Wall layers:" + str(perimeter_layers) + "Fill:" + str(fill_density) + "\n")
     # TODO: gcode.write() the pre-printing stuff
 
     extruded = 0
-    for index, plane, perimeters in enumerate(perimeter_points):
+
+    for plane in perimeter_points:
+        perimeters = perimeter_points[plane]
         # first, loop through the perimeters and fill them in
-        gcode.write(";Layer: " + str(plane))
+        gcode.write(";Layer: " + str(plane) + "\n")
         if index==0:
             gcode.write("M107")
         elif index==1:
@@ -40,24 +43,26 @@ def cube_gcode(fill_density = 0.20, perimeter_layers = 2, thickness = 0.1):
 
         for i in range(perimeter_layers):
             for ps in perimeters:
-                gcode.write(";Printing perimeter")
+                gcode.write(";Printing perimeter\n")
                 first = ps[0]
-                gcode.write("G0 F1500 X"+ str(first.x) + " Y" + str(first.y) + " Z" + str(first.z))
+                gcode.write("G0 F1500 X"+ str(first.x) + " Y" + str(first.y) + " Z" + str(first.z) + "\n")
                 for p in ps[1::]:
                     dist = p.dist_from_point(first)
                     x = str(p.x)
                     y = str(p.y)
                     z = str(p.z)
-                    gcode.write("G1 X"+ x + " Y" + y + " E" + str(dist))
+                    gcode.write("G1 X"+ x + " Y" + y + " E" + str(dist) + "\n")
                     extruded += dist
                     first = p
 
-        gcode.write(";Printing inner fill")
+        gcode.write(";Printing inner fill\n")
         for line in contour_segments[plane]:
             head = line.p1
             tail = line.p2
-            gcode.write("G0 F4200 X"+ str(head.x) + " Y" + str(head.y))
-            gcode.write("G1 F1500 X"+ str(tail.x) + " Y" + str(tail.y) + " E" + str(line.line_length()))
+            gcode.write("G0 F4200 X"+ str(head.x) + " Y" + str(head.y) + "\n")
+            gcode.write("G1 F1500 X"+ str(tail.x) + " Y" + str(tail.y) + " E" + str(line.line_length()) + "\n")
             extruded += line.line_length()
 
     gcode.close()
+
+cube_gcode()

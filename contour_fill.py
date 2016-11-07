@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from shapes import *
+import numpy as np
 
 # takes in a list of a list of points (list of perimeters), list of list of lines, desired fill density,
 # and direction (horizontal vs vertical)
@@ -7,19 +8,19 @@ from shapes import *
 # ideally, this function should be abstracted to work on two axes
 def contour_fill(perimeters, lines, density, direction):
     # not looking at z axis for any of these points
-    flatten_list = sum(lines, [])
+    flatten_list = lines #sum(lines, [])
 
     # sort perimeters by minimum x or y so that this is a list of concentric perimeters starting from the outermost layer
-    perimeters.sort(key=lambda l:min(l.y)) if direction == 'horizontal' else perimeters.sort(key=lambda l:min(l.x))
+    perimeters.sort(key=lambda l:min(l, key=lambda p:p.y)) if direction == 'horizontal' else perimeters.sort(key=lambda l:min(l, key=lambda p:p.x))
 
     # look at the first perimeter because we sorted by outermost layer
-    max_val = max(perimeters[0], key=lambda y: y.y) if direction == 'horizontal' else  max(perimeters[0], key=lambda y: y.x)
-    min_val = min(perimeters[0], key=lambda y: y.y) if direction == 'horizontal' else  max(perimeters[0], key=lambda y: y.x)
+    max_val = max(perimeters[0], key=lambda y: y.y).y if direction == 'horizontal' else  max(perimeters[0], key=lambda y: y.x).x
+    min_val = min(perimeters[0], key=lambda y: y.y).y if direction == 'horizontal' else  max(perimeters[0], key=lambda y: y.x).x
 
     line_segments = []
     # density should be a percentage; e.g. 20% or 0.20
     step = (max_val - min_val) * density
-    for y in range(min_val, max_val+step, step):
+    for y in np.linspace(min_val, max_val+step, step):
         intersections = find_intersections(flatten_list, y, direction)
         num_segs = len(line_segments)
         if num_segs % 2 != 0:

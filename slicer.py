@@ -168,7 +168,7 @@ def link_line_segments():
 			exclude_self = copy.copy(exclude_lines)
 			exclude_self.remove(line)
 
-			while not start_point.is_equal(point2):
+			while not start_point.is_equal(point2) or len(exclude_lines) == 0:
 
 				exclude_self = copy.copy(exclude_lines)
 				exclude_self.remove(line)
@@ -193,12 +193,11 @@ def link_line_segments():
 	return points
 
 # fill in the contours from the perimeters for each plane
-def fill_all_plane_contours(density):
+def fill_all_plane_contours(density, points):
 	# this is the dict of segments representing fill space; i.e. what needs to be converted to g-code
 	# keys represent z-axis planes, each with line segments
 	contour_segments = {}
 
-	points = link_line_segments()
 	for plane in lines:
 		# list of a list of points (representing a list of perimeters)
 		ps = points[plane]
@@ -210,8 +209,3 @@ def fill_all_plane_contours(density):
 
 # at this point, contour_segments should be a dictionary of planes, each plane populated with a single array of
 # line segments representing what must be filled at that level, horizontal segments and then vertical segments
-
-parse_stl_file("cubetest.stl")
-calc_points(10)
-remove_dup_lines()
-perimeter = link_line_segments()
