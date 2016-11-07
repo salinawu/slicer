@@ -24,9 +24,24 @@ def cube_gcode(fill_density = 0.20, perimeter_layers = 2, thickness = 0.1):
 
     gcode = open('simpleCube.gcode', 'w+')
 
+    # opening gcode
     gcode.write("M109 S207.000000\n")
-    gcode.write(";Basic settings: Layer height:" + str(thickness) + " Wall layers:" + str(perimeter_layers) + "Fill:" + str(fill_density) + "\n")
-    # TODO: gcode.write() the pre-printing stuff
+    gcode.write(";Basic settings: Layer height: " + str(thickness) + " Wall layers: " + str(perimeter_layers) + " Fill: " + str(fill_density) + "\n")
+    gcode.write(";M190 S70 ;Uncomment to add your own bed temperature line \
+        ;M109 S207 ;Uncomment to add your own temperature line \
+    G21        ;metric values \
+    G90        ;absolute positioning \
+    M82        ;set extruder to absolute mode \
+    M107       ;start with the fan off \
+    G28 X0 Y0  ;move X/Y to min endstops \
+    G28 Z0     ;move Z to min endstops \
+    G29        ;Run the auto bed leveling \
+    G1 Z15.0 F4200 ;move the platform down 15mm \
+    G92 E0                  ;zero the extruded length \
+    G1 F200 E3              ;extrude 3mm of feed stock \
+    G92 E0                  ;zero the extruded length again \
+    G1 F4200 \
+    M117 Printing...")
 
     extruded = 0
 
@@ -62,6 +77,17 @@ def cube_gcode(fill_density = 0.20, perimeter_layers = 2, thickness = 0.1):
             gcode.write("G0 F4200 X"+ str(head.x) + " Y" + str(head.y) + "\n")
             gcode.write("G1 F1500 X"+ str(tail.x) + " Y" + str(tail.y) + " E" + str(line.line_length()) + "\n")
             extruded += line.line_length()
+
+    # closing gcode
+    gcode.write(";End GCode \
+    M104 S0                     ;extruder heater off \
+    M140 S0                     ;heated bed heater off (if you have it) \
+    G91                                    ;relative positioning \
+    G1 E-1 F300                            ;retract the filament a bit before lifting the nozzle, to release some of the pressure \
+    G1 Z+0.5 E-5 X-20 Y-20 F4200 ;move Z up a bit and retract filament even more \
+    G28 X0 Y0                              ;move X/Y to min endstops, so the head is out of the way \
+    M84                         ;steppers off \
+    G90                         ;absolute positioning")
 
     gcode.close()
 
