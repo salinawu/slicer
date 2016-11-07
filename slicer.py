@@ -63,14 +63,15 @@ def _calc_intersection(p1, p2, p3, p4, z):
 	y = m1*x + b1
 	return Point(x, y, z)
 
-def calc_points(max_z, thickness):
+def calc_points(thickness):
 	points = []
 	#sorts triangles in ascending order by comparing lowest z-axis vertices
-	sorted_triangles = sorted(triangles, key=lambda x: x.z_low.z, reverse=False)
+	sorted_triangles = sorted(triangles, key=lambda x: x.z_low.z)
 
-	#TODO: DETERMINE WHAT MIN Z TO START AT
-	# shouldn't it be 0?
-	for plane in range(-10, max_z, thickness):
+	min_z = sorted_triangles[0].z_low.z
+	max_z = max(triangles, key=lambda x: x.z_high.z)
+
+	for plane in range(min_z, max_z+thickness, thickness):
 		lines[plane] = []
 		for t in triangles:
 			if t.intersects_plane(plane):
@@ -130,8 +131,6 @@ def calc_line_segments(ps, z):
 		return [Line(ps[0], ps[1], z), Line(ps[2], ps[1], z), Line(ps[2], ps[0], z)]
 	else:
 		raise NameError('can only have 2 or 3 points')
-
-calc_points(10, 10)
 
 def remove_dup_lines():
 	# plane is the z value of each plane
@@ -205,7 +204,7 @@ def fill_all_plane_contours(density):
 # line segments representing what must be filled at that level, horizontal segments and then vertical segments
 
 # parse_stl_file("cubetest.stl")
-# calc_points(10, 10)
+# calc_points(10)
 # remove_dup_lines()
 #perimeter = link_line_segments()
 #for p in perimeter:
