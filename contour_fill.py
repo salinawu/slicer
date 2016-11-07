@@ -1,5 +1,5 @@
 #!/usr/bin/python
-from shapes import * 
+from shapes import *
 
 # takes in a list of a list of points (list of perimeters), list of list of lines, desired fill density,
 # and direction (horizontal vs vertical)

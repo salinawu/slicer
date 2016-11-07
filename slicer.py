@@ -13,10 +13,6 @@ triangles = []
 # and the values are the line segments
 lines = {}
 
-# this is the dict of segments representing fill space; i.e. what needs to be converted to g-code
-# keys represent z-axis planes, each with line segments
-contour_segments = {}
-
 # takes in a line from a file of the form 'vertex x y z' and returns the point corresponding to it
 def parse_point(line):
 	points = line.split()
@@ -206,9 +202,19 @@ def link_line_segments():
 
 # fill in the contours from the perimeters for each plane
 def fill_all_plane_contours(density):
-	for plane, ls in lines:
-		contour_segments[plane] = contour_fill(perimeters, ls, density, 'horizontal')
-		contour_segments[plane] += contour_fill(perimeters, ls, density, 'vertical')
+	# this is the dict of segments representing fill space; i.e. what needs to be converted to g-code
+	# keys represent z-axis planes, each with line segments
+	contour_segments = {}
+
+	points = link_line_segments()
+	for plane in lines:
+		# list of a list of points (representing a list of perimeters)
+		ps = points[plane]
+		# list of line segments on each plane
+		ls = lines[plane]
+		contour_segments[plane] = contour_fill(ps, ls, density, 'horizontal')
+		contour_segments[plane] += contour_fill(ps, ls, density, 'vertical')
+	return contour_segments
 
 # at this point, contour_segments should be a dictionary of planes, each plane populated with a single array of
 # line segments representing what must be filled at that level, horizontal segments and then vertical segments

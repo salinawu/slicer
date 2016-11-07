@@ -1,3 +1,5 @@
+import math
+
 # calculates all the normal vectors for a given triangle
 # made up of three vectors
 class Point:
@@ -17,11 +19,15 @@ class Point:
             return False
     	return self.x == other.x and self.y == other.y and self.z == other.z
 
+    def dist_from_point(self, p):
+        return math.sqrt(sum(self.x - p.x, self.y - p.y, self.z - p.z))
+
     def print_point(self):
         print str(self.x) + ' ' + str(self.y) + ' ' + str(self.z)
 
     def point_tos(self):
         return str(self.x) + ' ' + str(self.y) + ' ' + str(self.z)
+
 
 # consists of three Points
 # and a point that has the highest z-coordinate
@@ -134,3 +140,6 @@ class Line():
             # if it's in the line segment
             return Point(x, y, self.p1.z)
         return False
+
+    def line_length(self):
+        return self.p1.dist_from_point(self.p2)
