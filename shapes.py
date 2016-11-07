@@ -102,16 +102,18 @@ class Line():
         self.z = z
 
     def line_tos(self):
-        return "p1: " + self.p1.point_tos() + " p2: " + self.p2.point_tos()
+        return "p1: " + self.p1.point_tos() + " p2: " + self.p2.point_tos() + " z: " + str(self.z)
 
     def same_line(self, l):
         return (self.p1.is_equal(l.p1) and self.p2.is_equal(l.p2)) or (self.p1.is_equal(l.p2) and self.p2.is_equal(l.p1))
 
     def contains(self, point):
+        if point == None:
+            return False
         return self.p1.is_equal(point) or self.p2.is_equal(point)
 
     def slope(self):
-        return (self.p2.y - self.p1.y) / (self.p2.x - self.p1.x) if not (self.p2.x - self.p1.x) else float("inf")
+        return (self.p2.y - self.p1.y) / (self.p2.x - self.p1.x) if (self.p2.x - self.p1.x) != 0 else float("inf")
 
     def y_int(self):
         slope = self.slope()
@@ -143,3 +145,38 @@ class Line():
 
     def line_length(self):
         return self.p1.dist_from_point(self.p2)
+
+class Vector:
+
+    def __init__(self, a, b, c):
+        self.a = a
+        self.b = b
+        self.c = c
+
+    def dot_prod(self, other):
+        return self.a*other.a + self.b*other.b + self.c*other.c
+
+class Plane:
+
+    def __init__(self, pt, nv):
+        self.pt = pt
+        self.nv = nv
+        self.a = nv.a
+        self.b = nv.b
+        self.c = nv.c
+        self.d = self.a*pt.x + self.b*pt.y + self.c*pt.z
+
+    #calculates the intersection of the plane and a line
+    #assuming that the line in parametric form is not parallel to the plane
+    #and intersects at a point with the plane
+    def line_intersection(self, vector, point):
+        x0 = point.x
+        y0 = point.y
+        z0 = point.z
+        num = self.d - self.a*x0 - self.b*y0 - self.c*z0
+        div = self.a*vector.a + self.b*vector.b + self.c*vector.c
+        t = 0 if div == 0 else num/div
+        x = x0 + vector.a*t
+        y = y0 + vector.b*t
+        z = z0 + vector.c*t
+        return Point(x,y,z)
