@@ -27,28 +27,28 @@ def cube_gcode(fill_density = 20, perimeter_layers = 2, thickness = 0.1):
     # opening gcode
     gcode.write("M109 S207.000000\n")
     gcode.write(";Basic settings: Layer height: " + str(thickness) + " Wall layers: " + str(perimeter_layers) + " Fill: " + str(fill_density) + "\n")
-    gcode.write(";M190 S70 ;Uncomment to add your own bed temperature line \
-        ;M109 S207 ;Uncomment to add your own temperature line \
-    G21        ;metric values \
-    G90        ;absolute positioning \
-    M82        ;set extruder to absolute mode \
-    M107       ;start with the fan off \
-    G28 X0 Y0  ;move X/Y to min endstops \
-    G28 Z0     ;move Z to min endstops \
-    G29        ;Run the auto bed leveling \
-    G1 Z15.0 F4200 ;move the platform down 15mm \
-    G92 E0                  ;zero the extruded length \
-    G1 F200 E3              ;extrude 3mm of feed stock \
-    G92 E0                  ;zero the extruded length again \
-    G1 F4200 \
-    M117 Printing...\n")
+    gcode.write(";M190 S70 ;Uncomment to add your own bed temperature line\n\
+;M109 S207 ;Uncomment to add your own temperature line\n\
+G21        ;metric values\n\
+G90        ;absolute positioning\n\
+M82        ;set extruder to absolute mode\n\
+M107       ;start with the fan off\n\
+G28 X0 Y0  ;move X/Y to min endstops\n\
+G28 Z0     ;move Z to min endstops\n\
+G29        ;Run the auto bed leveling\n\
+G1 Z15.0 F4200 ;move the platform down 15mm\n\
+G92 E0                  ;zero the extruded length\n\
+G1 F200 E3              ;extrude 3mm of feed stock\n\
+G92 E0                  ;zero the extruded length again\n\
+G1 F4200\n\
+M117 Printing...\n")
 
     extruded = 0
 
-    for plane in sorted(perimeter_points):
+    for index, plane in enumerate(sorted(perimeter_points)):
         perimeters = perimeter_points[plane]
         # first, loop through the perimeters and fill them in
-        gcode.write(";Layer: " + str(plane) + "\n")
+        gcode.write(";Layer: " + str(index) + "\n")
         if index==0:
             gcode.write("M107\n")
         elif index==1:
@@ -79,15 +79,15 @@ def cube_gcode(fill_density = 20, perimeter_layers = 2, thickness = 0.1):
             extruded += line.line_length()
 
     # closing gcode
-    gcode.write(";End GCode \
-    M104 S0                     ;extruder heater off \
-    M140 S0                     ;heated bed heater off (if you have it) \
-    G91                                    ;relative positioning \
-    G1 E-1 F300                            ;retract the filament a bit before lifting the nozzle, to release some of the pressure \
-    G1 Z+0.5 E-5 X-20 Y-20 F4200 ;move Z up a bit and retract filament even more \
-    G28 X0 Y0                              ;move X/Y to min endstops, so the head is out of the way \
-    M84                         ;steppers off \
-    G90                         ;absolute positioning")
+    gcode.write(";End GCode\n\
+M104 S0                     ;extruder heater off\n\
+M140 S0                     ;heated bed heater off (if you have it)\n\
+G91                                    ;relative positioning\n\
+G1 E-1 F300                            ;retract the filament a bit before lifting the nozzle, to release some of the pressure\n\
+G1 Z+0.5 E-5 X-20 Y-20 F4200 ;move Z up a bit and retract filament even more\n\
+G28 X0 Y0                              ;move X/Y to min endstops, so the head is out of the way\n\
+M84                         ;steppers off\n\
+G90                         ;absolute positioning")
 
     gcode.close()
 
