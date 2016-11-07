@@ -44,7 +44,7 @@ def parse_stl_file(filename):
 			else:
 				i += 1
 
-parse_stl_file("cubetest.stl")
+#parse_stl_file("cubetest.stl")
 
 #calculates the intersection of 2 line segments, given by p1-p2 and p3-p4
 def _calc_intersection(p1, p2, p3, p4, z):
@@ -63,21 +63,25 @@ def _calc_intersection(p1, p2, p3, p4, z):
 	y = m1*x + b1
 	return Point(x, y, z)
 
+# loops through each plane and triangle, finds the points of intersections
+# will populate lines dictionary (by way of intersection_case())
 def calc_points(thickness):
 	points = []
 	#sorts triangles in ascending order by comparing lowest z-axis vertices
 	sorted_triangles = sorted(triangles, key=lambda x: x.z_low.z)
 
 	min_z = sorted_triangles[0].z_low.z
-	max_z = max(triangles, key=lambda x: x.z_high.z)
-
+	max_z = max(triangles, key=lambda x: x.z_high.z).z_high.z
+	print len(triangles)
 	for plane in range(min_z, max_z+thickness, thickness):
 		lines[plane] = []
 		for t in triangles:
 			if t.intersects_plane(plane):
+				print plane
 				# calculate the intersecting points and calculate the correponding line segments
 				intersection_case(t, plane, points)
 
+# for each intersection, store the line segments (unrefined perimeters)
 def intersection_case(triangle, plane, points):
 	z1 = triangle.p1.z
 	z2 = triangle.p2.z
@@ -134,10 +138,10 @@ def calc_line_segments(ps, z):
 
 def remove_dup_lines():
 	# plane is the z value of each plane
-	for plane in lines.keys():
+	for plane, lines in lines.keys():
 		# l is each line in the corresponding plane
-		for l in lines[plane]:
-			exclude_self = lines[plane]
+		for l in lines:
+			exclude_self = copy.copy(lines)
 			exclude_self.remove(l)
 			# find all the lines identical to the one we're currently looking at
 			same_lines = [x for x in exclude_self if l.same_line(x)]
@@ -191,7 +195,6 @@ def link_line_segments():
 						point2 = line2.p1
 						break
 		points.append(points_list)
-
 	return points
 
 # fill in the contours from the perimeters for each plane
@@ -203,8 +206,9 @@ def fill_all_plane_contours(density):
 # at this point, contour_segments should be a dictionary of planes, each plane populated with a single array of
 # line segments representing what must be filled at that level, horizontal segments and then vertical segments
 
-# parse_stl_file("cubetest.stl")
-# calc_points(10)
+parse_stl_file("cubetest.stl")
+calc_points(10)
+print [len(lines[i]) for i in lines.keys()]
 # remove_dup_lines()
 #perimeter = link_line_segments()
 #for p in perimeter:
