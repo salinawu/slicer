@@ -130,7 +130,6 @@ def remove_dup_lines():
 			exclude_self = copy.copy(lines[plane])
 			exclude_self.remove(l)
 			# find all the lines identical to the one we're currently looking at
-
 			same_lines = [x for x in exclude_self if l.same_line(x)]
 			for same in same_lines:
 				# we might have already taken out the line in contention
@@ -141,8 +140,6 @@ def remove_dup_lines():
 # uses algo from paper to determine whether we should remove 1 or both line segments
 # should only arrive here if l1==l2
 def remove_line_segments(l1, l2, plane):
-	# print "plane: " + str(plane)
-	# print "line1: " + l1.line_tos() + " line2: " + l1.line_tos()
 	if (l1.z == l2.z == -2) or (l1.z > plane and l2.z > plane) or (l1.z < plane and l2.z < plane):
 		lines[plane].remove(l1)
 		lines[plane].remove(l2)
@@ -152,6 +149,47 @@ def remove_line_segments(l1, l2, plane):
 		raise NameError('should never end up in this case')
 
 def link_line_segments():
+	# points = {} #dictionary of a list of list of points to be returned
+	# for plane in lines:
+	# 	#exclude_lines is the line segments of the perimeters
+	# 	exclude_lines = copy.copy(lines[plane])
+	# 	#if no lines in the plane, we skip
+	# 	if not exclude_lines:
+	# 		continue
+	# 	points_list = []
+	# 	print plane
+	# 	#while there are line segments remaining: 
+	# 	while len(exclude_lines) > 0:
+	# 		perimeter = []
+
+	# 		#take a random item from the list
+	# 		line = exclude_lines[0]
+	# 		start_point = line.p1 #the point we must get back to
+	# 		point2 = line.p2 #the point we use to trace the perimeter
+	# 		perimeter += [line.p1, line.p2]
+
+	# 		exclude_lines.remove(line)
+
+	# 		for l in exclude_lines: 
+	# 			if l.p1.is_equal(point2): 
+	# 				perimeter.append(l.p2)
+	# 				point2 = l.p2
+	# 				exclude_lines.remove(l)
+	# 				if l.p2 == start_point: 
+	# 					break 
+	# 			elif l.p2.is_equal(point2): 
+	# 				perimeter.append(l.p1)
+	# 				point2 = l.p1
+	# 				exclude_lines.remove(l)
+	# 				if l.p1 == start_point: 
+	# 					break
+	# 			print "here" 
+	# 		print len(perimeter)
+	# 		points_list.append(perimeter)
+	# 	points[plane] = points_list
+
+	# return points
+	
 	points = {} #dictionary of a list of list of points to be returned
 	for plane in lines:
 		exclude_lines = copy.copy(lines[plane])

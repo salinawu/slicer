@@ -4,11 +4,11 @@ from contour_fill import *
 from slicer import *
 import copy
 
-def cube_gcode(fill_density = 20, perimeter_layers = 2, thickness = 0.1):
+def cube_gcode(filename, outputfilename, fill_density = 20, perimeter_layers = 2, thickness = .1):
     # run everything to get contour_segments populated:
 
     # parse the stl file so that we have all the triangles
-    parse_stl_file("cubetest.stl")
+    parse_stl_file(filename)
 
     # calculate all the intersection points of all the triangles; store in a dictionary by plane (called lines)
     calc_points(thickness)
@@ -21,14 +21,15 @@ def cube_gcode(fill_density = 20, perimeter_layers = 2, thickness = 0.1):
 
     # generates a dictionary of line segments to print out organized by plane
     contour_segments = fill_all_plane_contours(fill_density, perimeter_points)
+    print len(contour_segments)
+    print len(perimeter_points)
 
-    gcode = open('simpleCube.gcode', 'w+')
+    gcode = open(outputfilename, 'w+')
 
     # opening gcode
     gcode.write("M109 S207.000000\n")
     gcode.write(";Basic settings: Layer height: " + str(thickness) + " Wall layers: " + str(perimeter_layers) + " Fill: " + str(fill_density) + "\n")
     gcode.write(";M190 S70 ;Uncomment to add your own bed temperature line\n\
-;M109 S207 ;Uncomment to add your own temperature line\n\
 G21        ;metric values\n\
 G90        ;absolute positioning\n\
 M82        ;set extruder to absolute mode\n\
@@ -36,7 +37,7 @@ M107       ;start with the fan off\n\
 G28 X0 Y0  ;move X/Y to min endstops\n\
 G28 Z0     ;move Z to min endstops\n\
 G29        ;Run the auto bed leveling\n\
-G1 Z15.0 F4200 ;move the platform down 15mm\n\
+;G1 Z15.0 F4200 ;move the platform down 15mm\n\
 G92 E0                  ;zero the extruded length\n\
 G1 F200 E3              ;extrude 3mm of feed stock\n\
 G92 E0                  ;zero the extruded length again\n\
@@ -58,6 +59,8 @@ M117 Printing...\n")
 
         for i in range(perimeter_layers):
             for ps in perimeters:
+                # print len(ps)
+
                 gcode.write(";Printing perimeter\n")
                 first = ps[0]
                 gcode.write("G0 F1500 X"+ str(first.x) + " Y" + str(first.y) + " Z" + str(first.z) + "\n")
@@ -66,7 +69,7 @@ M117 Printing...\n")
                     x = str(p.x)
                     y = str(p.y)
                     z = str(p.z)
-                    gcode.write("G1 X"+ x + " Y" + y + " E" + str(dist) + "\n")
+                    gcode.write("G1 X"+ x + " Y" + y + " E" + str(extruded + dist) + "\n")
                     extruded += dist
                     first = p
 
@@ -75,7 +78,7 @@ M117 Printing...\n")
             head = line.p1
             tail = line.p2
             gcode.write("G0 F4200 X"+ str(head.x) + " Y" + str(head.y) + "\n")
-            gcode.write("G1 F1500 X"+ str(tail.x) + " Y" + str(tail.y) + " E" + str(line.line_length()) + "\n")
+            gcode.write("G1 F1500 X"+ str(tail.x) + " Y" + str(tail.y) + " E" + str(extruded + line.line_length()) + "\n")
             extruded += line.line_length()
 
     # closing gcode
@@ -91,4 +94,5 @@ G90                         ;absolute positioning")
 
     gcode.close()
 
-cube_gcode()
+cube_gcode("cubetest20.stl", "simpleCube.gcode")
+# cube_gcode("cylindertest.stl", "simpleCylinder.gcode")
