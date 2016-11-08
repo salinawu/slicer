@@ -5,7 +5,7 @@ from slicer import *
 import copy
 import sys
 
-def cube_gcode(filename, outputfilename, fill_density = 20, perimeter_layers = 2, thickness = 1):
+def cube_gcode(filename, outputfilename, fill_density = 20, perimeter_layers = 2, thickness = 0.1):
     # run everything to get contour_segments populated:
 
     # parse the stl file so that we have all the triangles
@@ -96,5 +96,6 @@ G90                         ;absolute positioning")
     gcode.close()
 
 stl_filename = sys.argv[1]
+
 gcode_filename = stl_filename.split(".stl")[0] + ".gcode"
 cube_gcode(stl_filename, gcode_filename)

@@ -70,6 +70,6 @@ def find_intersections(lines, y, direction):
 
     intersection_points.sort(key=lambda p:p.x) if direction == 'horizontal' else intersection_points.sort(key=lambda p:p.y)
     # order list and return
-    # TODO something is wrong...
+    # TODO something is wrong... there should be an even number of intersection_points
 
     return intersection_points
