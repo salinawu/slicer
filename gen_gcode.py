@@ -97,5 +97,4 @@ G90                         ;absolute positioning")
 
 stl_filename = sys.argv[1]
 gcode_filename = stl_filename.split(".stl")[0] + ".gcode"
-print gcode_filename
 cube_gcode(stl_filename, gcode_filename)
