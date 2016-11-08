@@ -165,14 +165,13 @@ def link_line_segments():
 			perimeter += [line.p1, line.p2]
 
 			# print plane
-			# exclude_self = exclude_lines
-			# exclude_self.remove(line)
-			found_equal = False
+			exclude_self = exclude_lines
+			exclude_self.remove(line)
 
-			while not start_point.is_equal(point2) or len(exclude_lines) > 0:
-				# exclude_self = exclude_lines
-				#
-				for line2 in [i for i in exclude_lines if not i.same_line(line)]:
+			while not start_point.is_equal(point2) or len(exclude_self) > 0:
+				exclude_self = exclude_lines
+
+				for line2 in exclude_self:
 					if line2.contains(point2):
 
 						#line2.p2 is the point to be compared next
@@ -185,23 +184,12 @@ def link_line_segments():
 							point2 = line2.p1
 						exclude_lines.remove(line2)
 						line = line2
-						print [i.point_tos() for i in perimeter]
-						start_point.print_point()
-						point2.print_point()
-						print start_point.is_equal(point2)
-						print len(exclude_lines)
-						print exclude_lines
-
-					if start_point.is_equal(point2):
-						found_equal = True
-						break
-				if found_equal:
-					break
 
 			points_list.append(perimeter)
 		points[plane] = points_list
 
 	return points
+
 
 # fill in the contours from the perimeters for each plane
 def fill_all_plane_contours(density, points):

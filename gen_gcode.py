@@ -3,6 +3,7 @@ from shapes import *
 from contour_fill import *
 from slicer import *
 import copy
+import sys
 
 def cube_gcode(filename, outputfilename, fill_density = 20, perimeter_layers = 2, thickness = 1):
     # run everything to get contour_segments populated:
@@ -98,4 +99,9 @@ G90                         ;absolute positioning")
 # cube_gcode("cylindertest.stl", "simpleCylinder.gcode")
 
 # cube_gcode("cube.stl", "cube.gcode")
-cube_gcode("cylinder.stl", "cylinder.gcode")
+# cube_gcode("cylinder.stl", "cylinder.gcode")
+
+stl_filename = sys.argv[1]
+gcode_filename = stl_filename.split(".stl")[0] + ".gcode"
+print gcode_filename
+cube_gcode(stl_filename, gcode_filename)
