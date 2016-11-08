@@ -66,6 +66,8 @@ def calc_points(thickness):
 			if t.intersects_plane(plane):
 				# calculate the intersecting points and calculate the correponding line segments
 				intersection_case(t, plane, points)
+	print [len(lines[i]) for i in lines]
+	print len(triangles)
 
 # for each intersection, store the line segments (unrefined perimeters)
 def intersection_case(triangle, plane, points):
@@ -131,6 +133,7 @@ def remove_dup_lines():
 			exclude_self.remove(l)
 			# find all the lines identical to the one we're currently looking at
 			same_lines = [x for x in exclude_self if l.same_line(x)]
+			print same_lines
 			for same in same_lines:
 				# we might have already taken out the line in contention
 				if l not in lines[plane]:
@@ -149,65 +152,34 @@ def remove_line_segments(l1, l2, plane):
 		raise NameError('should never end up in this case')
 
 def link_line_segments():
-	# points = {} #dictionary of a list of list of points to be returned
-	# for plane in lines:
-	# 	#exclude_lines is the line segments of the perimeters
-	# 	exclude_lines = copy.copy(lines[plane])
-	# 	#if no lines in the plane, we skip
-	# 	if not exclude_lines:
-	# 		continue
-	# 	points_list = []
-	# 	print plane
-	# 	#while there are line segments remaining: 
-	# 	while len(exclude_lines) > 0:
-	# 		perimeter = []
-
-	# 		#take a random item from the list
-	# 		line = exclude_lines[0]
-	# 		start_point = line.p1 #the point we must get back to
-	# 		point2 = line.p2 #the point we use to trace the perimeter
-	# 		perimeter += [line.p1, line.p2]
-
-	# 		exclude_lines.remove(line)
-
-	# 		for l in exclude_lines: 
-	# 			if l.p1.is_equal(point2): 
-	# 				perimeter.append(l.p2)
-	# 				point2 = l.p2
-	# 				exclude_lines.remove(l)
-	# 				if l.p2 == start_point: 
-	# 					break 
-	# 			elif l.p2.is_equal(point2): 
-	# 				perimeter.append(l.p1)
-	# 				point2 = l.p1
-	# 				exclude_lines.remove(l)
-	# 				if l.p1 == start_point: 
-	# 					break
-	# 			print "here" 
-	# 		print len(perimeter)
-	# 		points_list.append(perimeter)
-	# 	points[plane] = points_list
-
-	# return points
-	
 	points = {} #dictionary of a list of list of points to be returned
 	for plane in lines:
+		print len(lines[plane])
+		for i in lines[plane]: 
+			i.p1.print_point()
+			i.p2.print_point()
+			print "\n"
+
+
+	for plane in lines:
 		exclude_lines = copy.copy(lines[plane])
-		#if no lines in the plane, we skip
-		if not exclude_lines:
-			continue
 		points_list = []
-		while len(exclude_lines) > 1:
+		while len(exclude_lines) >= 1:
 			perimeter = []
 			line = exclude_lines[0]
 			start_point = line.p1 #the point we must get back to
 			point2 = line.p2 #the point we use to trace the perimeter
-			perimeter.append(start_point)
+			perimeter += [line.p1, line.p2]
+
+			print plane
 			exclude_self = copy.copy(exclude_lines)
 			exclude_self.remove(line)
 
-			while not start_point.is_equal(point2) or len(exclude_lines) == 0:
-
+			start_point.print_point()
+			while not start_point.is_equal(point2) or len(exclude_self) > 0:
+				# start_point.print_point()
+				# point2.print_point()
+				# print exclude_self
 				exclude_self = copy.copy(exclude_lines)
 				exclude_self.remove(line)
 
@@ -215,11 +187,11 @@ def link_line_segments():
 					if line2.contains(point2):
 						#line2.p2 is the point to be compared next
 						if line2.p1.is_equal(point2):
-							perimeter += [line.p2, line2.p2]
+							perimeter += [line2.p2]
 							point2 = line2.p2
 						#line2.p1 is the point to be compared next
 						else:
-							perimeter += [line.p2, line2.p1]
+							perimeter += [line2.p1]
 							point2 = line2.p1
 						exclude_lines.remove(line)
 						line = line2

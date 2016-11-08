@@ -4,7 +4,7 @@ from contour_fill import *
 from slicer import *
 import copy
 
-def cube_gcode(filename, outputfilename, fill_density = 20, perimeter_layers = 2, thickness = .1):
+def cube_gcode(filename, outputfilename, fill_density = 20, perimeter_layers = 2, thickness = 1):
     # run everything to get contour_segments populated:
 
     # parse the stl file so that we have all the triangles
@@ -94,5 +94,19 @@ G90                         ;absolute positioning")
 
     gcode.close()
 
-cube_gcode("cubetest20.stl", "simpleCube.gcode")
+# cube_gcode("cubetest20.stl", "simpleCube.gcode")
 # cube_gcode("cylindertest.stl", "simpleCylinder.gcode")
+
+cube_gcode("cube.stl", "cube.gcode")
+
+
+
+
+
+
+
+
+
+
+
+
