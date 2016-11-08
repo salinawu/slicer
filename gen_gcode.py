@@ -95,12 +95,6 @@ G90                         ;absolute positioning")
 
     gcode.close()
 
-# cube_gcode("cubetest20.stl", "simpleCube.gcode")
-# cube_gcode("cylindertest.stl", "simpleCylinder.gcode")
-
-# cube_gcode("cube.stl", "cube.gcode")
-# cube_gcode("cylinder.stl", "cylinder.gcode")
-
 stl_filename = sys.argv[1]
 gcode_filename = stl_filename.split(".stl")[0] + ".gcode"
 print gcode_filename

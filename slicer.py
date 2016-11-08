@@ -157,35 +157,56 @@ def link_line_segments():
 		print plane
 		exclude_lines = copy.copy(lines[plane])
 		points_list = []
-		while len(exclude_lines) >= 1:
+		while exclude_lines:
 			perimeter = []
 			line = exclude_lines[0]
-			start_point = line.p1 #the point we must get back to
-			point2 = line.p2 #the point we use to trace the perimeter
+			start_point = line.p1 # the point we must get back to
+			point2 = line.p2 # the point we use to trace the perimeter
 			perimeter += [line.p1, line.p2]
+			exclude_lines.remove(line)
+			seen_lines = [line]
 
-			# print plane
-			exclude_self = exclude_lines
-			exclude_self.remove(line)
-
-			while not start_point.is_equal(point2) or len(exclude_self) > 0:
-				exclude_self = exclude_lines
-
-				for line2 in exclude_self:
-					if line2.contains(point2):
-
-						#line2.p2 is the point to be compared next
-						if line2.p1.is_equal(point2):
-							perimeter += [line2.p2]
-							point2 = line2.p2
-						#line2.p1 is the point to be compared next
-						else:
-							perimeter += [line2.p1]
-							point2 = line2.p1
-						exclude_lines.remove(line2)
-						line = line2
+			while not start_point.is_equal(point2):
+				connecting_line = [i for i in exclude_lines if i not in seen_lines and i.contains(point2)]
+				if not connecting_line:
+					break
+				# if len(connecting_line) != 1:
+				#  	raise NameError('should have only 1 connecting line')
+				connecting_line = connecting_line[0]
+				if connecting_line.p1.is_equal(point2):
+					perimeter.append(connecting_line.p2)
+					point2 = connecting_line.p2
+				#line2.p1 is the point to be compared next
+				else:
+					perimeter.append(connecting_line.p1)
+					point2 = connecting_line.p1
+				seen_lines.append(connecting_line)
+				exclude_lines.remove(connecting_line)
 
 			points_list.append(perimeter)
+
+			# # print plane
+			# exclude_self = exclude_lines
+			# exclude_self.remove(line)
+			#
+			# while not start_point.is_equal(point2) or len(exclude_self) > 0:
+			# 	exclude_self = exclude_lines
+			#
+			# 	for line2 in exclude_self:
+			# 		if line2.contains(point2):
+			#
+			# 			#line2.p2 is the point to be compared next
+			# 			if line2.p1.is_equal(point2):
+			# 				perimeter += [line2.p2]
+			# 				point2 = line2.p2
+			# 			#line2.p1 is the point to be compared next
+			# 			else:
+			# 				perimeter += [line2.p1]
+			# 				point2 = line2.p1
+			# 			exclude_lines.remove(line2)
+			# 			line = line2
+			#
+			# points_list.append(perimeter)
 		points[plane] = points_list
 
 	return points

@@ -10,6 +10,10 @@ import pdb
 def contour_fill(perimeters, lines, density, direction):
     # not looking at z axis for any of these points
     flatten_list = lines #sum(lines, [])
+    line_segments = []
+
+    if not perimeters:
+        return line_segments
 
     # sort perimeters by minimum x or y so that this is a list of concentric perimeters starting from the outermost layer
     perimeters.sort(key=lambda l:min(l, key=lambda p:p.y)) if direction == 'horizontal' else perimeters.sort(key=lambda l:min(l, key=lambda p:p.x))
@@ -19,9 +23,8 @@ def contour_fill(perimeters, lines, density, direction):
     min_val = min(perimeters[0], key=lambda y: y.y).y if direction == 'horizontal' else  min(perimeters[0], key=lambda y: y.x).x
 
     if max_val == min_val:
-        return []
+        return line_segments
 
-    line_segments = []
     # density should be a percentage; e.g. 20% or 0.20
     step = (max_val - min_val) / density
     for y in np.arange(min_val, max_val+step, step):
@@ -31,7 +34,7 @@ def contour_fill(perimeters, lines, density, direction):
         #     print num_segs
         for i in range(0, num_segs, 2):
             # append only even to odd intersection points
-            if i+1 < num_segs: 
+            if i+1 < num_segs:
                 line_segments.append(Line(intersections[i], intersections[i+1], intersections[i+1].z))
     return line_segments
 
@@ -51,7 +54,7 @@ def find_intersections(lines, y, direction):
         # case 3
         if (slope == 0 and direction == 'horizontal') or (slope == float("inf") and direction == 'vertical'):
             next
-            # if (i.p1.y == y and direction == 'horizontal') or (i.p1.x==y and direction == 'vertical'): 
+            # if (i.p1.y == y and direction == 'horizontal') or (i.p1.x==y and direction == 'vertical'):
             #     intersection_points.append(i.p1)
             #     intersection_points.append(i.p2)
 
