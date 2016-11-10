@@ -184,3 +184,9 @@ class Plane:
         y = y0 + vector.b*t
         z = z0 + vector.c*t
         return Point(x,y,z)
+
+class Perimeter:
+
+    def __init__(self, pm, height):
+        self.pm = pm
+        self.height = height
