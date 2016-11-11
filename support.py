@@ -6,10 +6,10 @@ def is_smaller_perimeter(pm1, pm2):
 		return False
 	bb_pm1 = find_bounding_box(pm1)
 	bb_pm2 = find_bounding_box(pm2)
-	print "top: " + str(bb_pm1[1].y) + " " + str(bb_pm2[1].y)
-	print "bottom: "  + str(bb_pm1[5].y) + " " + str(bb_pm2[5].y)
-	print "left: " + str(bb_pm1[7].x)+ " " + str(bb_pm2[7].x)
-	print "right: "  + str(bb_pm1[3].x) + " " + str(bb_pm2[3].x)
+	# print "top: " + str(bb_pm1[1].y) + " " + str(bb_pm2[1].y)
+	# print "bottom: "  + str(bb_pm1[5].y) + " " + str(bb_pm2[5].y)
+	# print "left: " + str(bb_pm1[7].x)+ " " + str(bb_pm2[7].x)
+	# print "right: "  + str(bb_pm1[3].x) + " " + str(bb_pm2[3].x)
 	return bb_pm1[1].y < bb_pm2[1].y and bb_pm1[5].y > bb_pm2[5].y and bb_pm1[7].x > bb_pm2[7].x and bb_pm1[3].x < bb_pm2[3].x
 
 def find_bounding_box(pm):
@@ -26,11 +26,12 @@ def find_bounding_box(pm):
 			bottom = pt
 		if pt.y > top.y:
 			top = pt
-	top_left = Point(top.y, left.x, top.z)
-	bottom_left = Point(bottom.y, left.x, bottom.z)
-	top_right = Point(top.y, right.x, top.z)
-	bottom_right = Point(bottom.y, right.x, bottom.z)
-	return [top_left, top, top_right, right, bottom_right, bottom, bottom_left, left]
+	top_left = Point(left.x, top.y, top.z)
+	bottom_left = Point(left.x, bottom.y, bottom.z)
+	top_right = Point(right.x, top.y, top.z)
+	bottom_right = Point(right.x, bottom.y, bottom.z)
+	print [top_left.point_tos(), top.point_tos(), top_right.point_tos(), right.point_tos(), bottom_right.point_tos(), bottom.point_tos(), bottom_left.point_tos(), left.point_tos()]
+	return  [top_left, top, top_right, right, bottom_right, bottom, bottom_left, left, top_left]
 
 def change_bounding_box(bounding_box, height):
 	to_ret = []
