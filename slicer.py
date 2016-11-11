@@ -12,7 +12,6 @@ triangles = []
 
 # this is the dict of perimeter lines; each key corresponds to a z-axis plane
 # and the values are the line segments
-lines = {}
 
 # takes in a line from a file of the form 'vertex x y z' and returns the point corresponding to it
 def parse_point(line):
@@ -52,7 +51,7 @@ def calc_intersection(p1, p2, z):
 
 # loops through each plane and triangle, finds the points of intersections
 # will populate lines dictionary (by way of intersection_case())
-def calc_points(thickness):
+def calc_points(thickness, lines):
 	points = []
 	#sorts triangles in ascending order by comparing lowest z-axis vertices
 	sorted_triangles = sorted(triangles, key=lambda x: x.z_low.z)
@@ -65,12 +64,10 @@ def calc_points(thickness):
 		for t in triangles:
 			if t.intersects_plane(plane):
 				# calculate the intersecting points and calculate the correponding line segments
-				intersection_case(t, plane, points)
-	print [len(lines[i]) for i in lines]
-	print len(triangles)
+				intersection_case(t, plane, points, lines)
 
 # for each intersection, store the line segments (unrefined perimeters)
-def intersection_case(triangle, plane, points):
+def intersection_case(triangle, plane, points, lines):
 	z1 = triangle.p1.z
 	z2 = triangle.p2.z
 	z3 = triangle.p3.z
@@ -124,7 +121,7 @@ def calc_line_segments(ps, z):
 	else:
 		raise NameError('can only have 2 or 3 points')
 
-def remove_dup_lines():
+def remove_dup_lines(lines):
 	# plane is the z value of each plane
 	for plane in lines:
 		# l is each line in the corresponding plane
@@ -137,11 +134,11 @@ def remove_dup_lines():
 				# we might have already taken out the line in contention
 				if l not in lines[plane]:
 					break
-				remove_line_segments(l, same, plane)
+				remove_line_segments(l, same, plane, lines)
 
 # uses algo from paper to determine whether we should remove 1 or both line segments
 # should only arrive here if l1==l2
-def remove_line_segments(l1, l2, plane):
+def remove_line_segments(l1, l2, plane, lines):
 	if (l1.z == l2.z == -2) or (l1.p1.z > plane and l2.p1.z > plane) or (l1.p1.z < plane and l2.p1.z < plane):
 		lines[plane].remove(l1)
 		lines[plane].remove(l2)
@@ -150,11 +147,10 @@ def remove_line_segments(l1, l2, plane):
 	else:
 		raise NameError('should never end up in this case')
 
-def link_line_segments():
+def link_line_segments(lines):
 	points = {} #dictionary of a list of list of points to be returned
 
 	for plane in lines:
-		print plane
 		exclude_lines = copy.copy(lines[plane])
 		points_list = []
 		while exclude_lines:
@@ -192,7 +188,7 @@ def link_line_segments():
 
 
 # fill in the contours from the perimeters for each plane
-def fill_all_plane_contours(density, points):
+def fill_all_plane_contours(density, points, lines):
 	# this is the dict of segments representing fill space; i.e. what needs to be converted to g-code
 	# keys represent z-axis planes, each with line segments
 	contour_segments = {}
