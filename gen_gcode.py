@@ -26,7 +26,7 @@ def cube_gcode(filename, outputfilename, fill_density = 20, perimeter_layers = 2
 
     # generates a dictionary of line segments to print out organized by plane
     contour_segments = fill_all_plane_contours(fill_density, perimeter_points, lines)
-    support_segments = fill_all_plane_contours(5, support[0], lines)
+    support_segments = fill_all_plane_contours(8, support_dict, support[0])
 
     gcode = open(outputfilename, 'w+')
 
@@ -86,19 +86,21 @@ M117 Printing...\n")
             extruded += line.line_length()
 
         support_perimeter_points = support_dict[plane]
-        #some layers do not need support
-        if len(support_perimeter_points) > 0:
-            gcode.write(";Printing support perimeter\n")
-            first = support_perimeter_points[0]
-            gcode.write("G0 F1500 X"+ str(first.x) + " Y" + str(first.y) + " Z" + str(first.z) + "\n")
-            for p in support_perimeter_points[1::]:
-                dist = p.dist_from_point(first)
-                x = str(p.x)
-                y = str(p.y)
-                z = str(p.z)
-                gcode.write("G1 X"+ x + " Y" + y + " E" + str(extruded + dist) + "\n")
-                extruded += dist
-                first = p
+        if support_perimeter_points:
+            support_perimeter_points = support_perimeter_points[0]
+            #some layers do not need support
+            if len(support_perimeter_points) > 0:
+                gcode.write(";Printing support perimeter\n")
+                first = support_perimeter_points[0]
+                gcode.write("G0 F1500 X"+ str(first.x) + " Y" + str(first.y) + " Z" + str(first.z) + "\n")
+                for p in support_perimeter_points[1::]:
+                    dist = p.dist_from_point(first)
+                    x = str(p.x)
+                    y = str(p.y)
+                    z = str(p.z)
+                    gcode.write("G1 X"+ x + " Y" + y + " E" + str(extruded + dist) + "\n")
+                    extruded += dist
+                    first = p
 
         gcode.write(";Printing support inner fill\n")
         for line in support_segments[plane]:
@@ -123,6 +125,5 @@ G90                         ;absolute positioning")
     gcode.close()
 
 stl_filename = sys.argv[1]
-
 gcode_filename = stl_filename.split(".stl")[0] + ".gcode"
 cube_gcode(stl_filename, gcode_filename)

@@ -6,10 +6,6 @@ def is_smaller_perimeter(pm1, pm2):
 		return False
 	bb_pm1 = find_bounding_box(pm1)
 	bb_pm2 = find_bounding_box(pm2)
-	# print "top: " + str(bb_pm1[1].y) + " " + str(bb_pm2[1].y)
-	# print "bottom: "  + str(bb_pm1[5].y) + " " + str(bb_pm2[5].y)
-	# print "left: " + str(bb_pm1[7].x)+ " " + str(bb_pm2[7].x)
-	# print "right: "  + str(bb_pm1[3].x) + " " + str(bb_pm2[3].x)
 	return bb_pm1[1].y < bb_pm2[1].y and bb_pm1[5].y > bb_pm2[5].y and bb_pm1[7].x > bb_pm2[7].x and bb_pm1[3].x < bb_pm2[3].x
 
 def find_bounding_box(pm):
@@ -30,7 +26,7 @@ def find_bounding_box(pm):
 	bottom_left = Point(left.x, bottom.y, bottom.z)
 	top_right = Point(right.x, top.y, top.z)
 	bottom_right = Point(right.x, bottom.y, bottom.z)
-	print [top_left.point_tos(), top.point_tos(), top_right.point_tos(), right.point_tos(), bottom_right.point_tos(), bottom.point_tos(), bottom_left.point_tos(), left.point_tos()]
+	#print [top_left.point_tos(), top.point_tos(), top_right.point_tos(), right.point_tos(), bottom_right.point_tos(), bottom.point_tos(), bottom_left.point_tos(), left.point_tos()]
 	return  [top_left, top, top_right, right, bottom_right, bottom, bottom_left, left, top_left]
 
 def change_bounding_box(bounding_box, height):
@@ -38,6 +34,19 @@ def change_bounding_box(bounding_box, height):
 	for pt in bounding_box:
 		to_ret.append(Point(pt.x, pt.y, height))
 	return to_ret
+
+def calc_lines(points):
+	index = 0
+	to_ret = []
+	if len(points) <= 1:
+		return to_ret
+	z = points[0].z
+	while index < len(points)-1:
+		to_ret.append(Line(points[index], points[index+1], z))
+		index+=1
+	
+	return to_ret
+
 
 def calc_support(perimeters):
 	cur_max = Perimeter(None, None)
@@ -48,7 +57,6 @@ def calc_support(perimeters):
 	for plane in sorted(perimeters, reverse=True):
 		lines = perimeters[plane]
 		support[plane] = []
-		print plane
 
 		if len(lines) == 0:
 			continue
@@ -60,11 +68,9 @@ def calc_support(perimeters):
 
 		#determines if the current perimeter is smaller than the max perimeter
 		if is_smaller_perimeter(outter_pm.pm, cur_max.pm):
-			print "min"
-			support[plane].append(outter_pm.pm)
+			support[plane] = calc_lines(outter_pm.pm)
 		# the current perimeter is bigger than the current max perimeter
 		else:
-			print "max"
 			cur_max = outter_pm
 
 	bounding_box = find_bounding_box(cur_max.pm)
@@ -75,12 +81,9 @@ def calc_support(perimeters):
 			perims[plane] = []
 			continue
 		changed = change_bounding_box(bounding_box, plane)
-		support[plane].append(changed)
-		perims[plane] = changed
+		support[plane] = [support[plane], calc_lines(changed)]
+		perims[plane] = [changed]
 
+	#returns the line segments and the list of points (perimeter)
 	return [support, perims]
-
-
-
-
 

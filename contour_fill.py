@@ -9,7 +9,16 @@ import pdb
 # ideally, this function should be abstracted to work on two axes
 def contour_fill(perimeters, lines, density, direction):
     # not looking at z axis for any of these points
-    flatten_list = lines #sum(lines, [])
+    flatten_list = []
+    for sublist in lines:
+        if hasattr(sublist, '__iter__'):
+            for i in sublist:
+                flatten_list.append(i)
+        else:
+            flatten_list = lines
+            break
+
+    #flatten_list = lines #sum(lines, [])
     line_segments = []
 
     if not perimeters:
