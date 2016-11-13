@@ -22,4 +22,6 @@ these line segments are translated to gcode in gen_gcode.py.
 
 shapes.py contains all of the class definitions for all of our shapes.
 
+support.py looks through the object from top->bottom to decide and generate support structures.
+
 For things we thought needed some fixing up, we wrote #TODO comments. 
